@@ -6,6 +6,8 @@
 .RData
 .RDataTmp
 
+#folders
+shapes**
 # User-specific files
 .Ruserdata
 
@@ -47,3 +49,5 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+*.csv
+*.shp

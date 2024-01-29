@@ -1,0 +1,289 @@
+---
+title: "Cumulative Human Impact (CHI) Analysis Methods"
+author: "Feyrer et al. 2022"
+date: "Feb 4, 2022"
+output: html_document
+---
+
+```{r setup , include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      fig_caption= TRUE,
+                      fig.align = "left",
+                      fig.pos = 'h',
+                      dev = "png", 
+                      cache = F
+                )
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+```
+
+```{r libraries, include=FALSE}
+#libraries
+library(knitr)
+library(rgdal) # to read shapefiles
+library(raster) # for the various raster functions
+library(sp) # Classes and methods for spatial data
+library(dplyr)
+library(sf)
+library(viridis)
+library(ggplot2)
+library(rgeos)
+library("ggrepel")
+library(stars)
+library(stringr)
+library(here)
+library(fasterize)
+library(ggtext)
+library(ggspatial)
+library("rnaturalearth")
+library("rnaturalearthdata")
+library(rnaturalearthhires)
+library(pals) 
+library(tidyr)
+library(fuzzyjoin)
+library(patchwork)
+library(ggtext)
+library(ggforce)
+library(cowplot)
+library(kableExtra)
+# devtools::install_github("ropensci/rnaturalearthhires")
+
+#read in functions
+source(here::here("Analysis/functionsCHI.r"))
+
+options(scipen = 999) 
+
+```
+
+***
+## Data Processing {.tabset}
+### 1. Import basemap data:
+  - This includes Coastlines, bathymetry, NBW habitat area, and conservation zones 
+  - Code imports data and transforms to UTM Zone 20 where necessary
+  - Extent of study area is based on area of influence around NBW habitat being a 50km buffer of the 1000m bathy line
+  - Bathymetric data from Atlas of Canada available at: (https://ftp.maps.canada.ca/pub/nrcan_rncan/vector/framework_cadre/North_America_Atlas10M/bathymetry/)
+  - Conservation zones compiled from layers available as shapefiles. 
+    - Other Effective Conservation Measures (OECM) from https://open.canada.ca/data/en/dataset/44769543-7a23-4991-a53f-c2cf7c7a946f  
+    - Ocean's Act MPAs from https://open.canada.ca/data/en/dataset/a1e18963-25dd-4219-a33f-1a38c4971250  
+    - Georges Bank Oil and Gas Exclusion zone from CNSOPB https://callforbids.cnsopb.ns.ca/2016/01/data-environment/gis-information  
+    - Northern bottlenose whale Critical Habitat designations from Species at Risk https://open.canada.ca/data/en/dataset/db177a8c-5d7d-49eb-8290-31e6a45d786c  
+
+```{r import_basemap, include=TRUE, message=FALSE, warning=FALSE, fig.width = 7, fig.height = 5, fig.fullwidth = TRUE}
+source(here::here("Analysis/baseMap.r"), local = knitr::knit_global())
+
+#remove any previous results before knitting and rerunning all analysis
+unlink(here::here("Results/GRIDS/scaled/*"))
+#map base map
+
+include_graphics(gg_Fig2path)
+
+```
+
+***
+
+### 2. Import stressor data
+  - Data is divided into two periods, early (1988-2004) and contemporary (2005-2019)
+  - Stressors with regionally specific information are Longline Fishing effort, Military Exercises, Oil and Gas Exploration and Development Activities   
+  - Remaining stressors (Other Fishing gears, Shipping and SST anomalies) are sourced from Halpern et al. 2015
+  
+#### A. Fishing Effort 
+ - Long line fishery effort was not available as part of Halpern et al.'s global dataset for the study area. Code below imports data for the fisheries created by: 
+- S. Butler, D. Ibarra and S. Coffen-Smout, 2019. Maritimes Region Longline and Trap Fisheries Footprint Mapping for Marine Spatial Planning and Risk Assessment. Can. Tech. Rep. Fish. Aquat. Sci. 3293: v + 30 p. Data available at: https://open.canada.ca/data/en/dataset/3d2e1a84-20f5-4a61-90e4-94760c80ebb9  
+  
+
+#####  i. Bottom Longline effort
+- Uses bottom long line fishing effort data created by Butler et al. 2019, where fishing effort is sum of effort in hrs/ km2 over the entire period 2002-2017. 
+- Early Period uses this dataset as is, given overall spatial effort has not changed. Contemporary period uses this dataset with Zone 1 of Gully removed to account for fishing closures that occured there post 2004.
+
+```{r Butler Bottom Longline, include = TRUE, fig.fullwidth = TRUE}
+source(here::here("Analysis/fishMap.r"), local = knitr::knit_global())
+
+#Bottom Longline
+# Plot map
+
+m2+m3+ plot_layout(guides = "collect")& theme(legend.position = 'bottom')
+
+```
+
+##### ii. Pelagic longline effort
+- Pelagic longline fishing effort data is provided in mins/ km2 from 2003-2018 in log scale. 
+- Dataset focuses on vessels reporting to DFO Maritimes region and only covers the western region off Newfoundland. Additional effort occurs in Newfoundland waters but was not included in this dataset. 
+- Early Period uses this dataset as is, given overall spatial effort has not changed. Contemporary period uses this dataset with Zone 1 of Gully removed to account for fishing closures that occured post 2004.
+
+```{r Butler Pelagic Longline, include = TRUE, fig.fullwidth = TRUE}
+
+#Pelagic Longline
+# Plot map
+
+m4+m5+ plot_layout(guides = "collect")& theme(legend.position = 'bottom')
+
+```
+
+##### iii. Other Fishing Effort 
+- Halpern et al. (2015) used landings normalized globally by productivity for different gear types 
+- Methods for estimating fishing effort is based annual wild caught industrial fisheries catch (tonnes) 
+ by taxa and gear type at 0.5° resolution as described in: 
+ - Halpern, B. S. et al. Patterns and emerging trends
+in global ocean health. PlosOne DOI:10.1371/journal.pone.0117863 (2015).  
+
+Layers are separated based on gear type and in units of tons of fish per tons of carbon in each 1 km2. 
+Data downloaded from:  
+Benjamin Halpern, Melanie Frazier, John Potapenko, Kenneth Casey, Kellee Koenig, et al. 2015. Cumulative
+human impacts: raw stressor data (2008 and 2013). Knowledge Network for Biocomplexity. doi:10.5063/F1S180FS.
+
+Gear type layers included here: 
+i. demersal destructive (e.g., bottom trawl), 
+ii. demersal non-destructive high bycatch (e.g., pots, traps), 
+iii. demersal non-destructive low bycatch (e.g., hook and line), 
+iv. pelagic low bycatch (e.g., hook and line) 
+ - Post 2004, consistent with other fishing effort layers uses this dataset with Zone 1 of Gully removed to account for fishing closures that occured in 2005
+```{r Halpern et al. Fishing, include = TRUE, fig.fullwidth = TRUE}
+
+#Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
+# Plot map
+m12 +m13 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
+
+```
+
+#### B. Military activities (MFAS)  
+- Military exercises– The Department of National Defence has designated Firing Practice and Exercise Areas off the coasts of Canada. Activities in these areas may include bombing practice from aircraft, air-to-air, air-to-sea or ground firing, and anti-aircraft firing, etc. In Atlantic Canada, this includes sea area employments for sub-surface operations and firing exercises (FIREX) (Department of National Defense Government of Canada, 2021). Polygon shapefiles of the designated areas were downloaded from the Canadian Government open data portal (https://open.canada.ca/data/en/dataset/73111c78-298b-4be9-97f1-7aaa73cab477). 
+
+- With no effort data on military exercises in these areas across the entire period, we interpreted them to represent threat potential for military mid-frequency active sonar (MMFAS). Although noise impacts can extend outside these areas, the most acute threat would occur inside the exercise areas. According to the Canadian Coast Guard Navigational Warnings (NAVWARNs), previously known as Notices to Shipping (NOTSHIPS), there were 44 notices of military exercises in areas overlapping with beaked whale habitat, on 54 days in 2019 (the first year notices were made available online), lasting between 1-5 days each (Government of Canada, 2021). However, this included 8 (non-consecutive) days of the biannual international CUTLASS FURY exercises. This biannual event began in 2016 and has been described as the “largest international military exercise in Canadian waters” (The Canadian Press, 2016).  Excluding CUTLASS FURY 2019, we used the proportion of days per year with notifications to mariners (46 days = 12.6%) as a baseline for effort across the area in any given year. Although there is little information on the extent of military activity in the early period, there were two large international exercises as part of the public record in 2016 and 2019 (i.e., CUTLASS FURY). To account for the impact of the international exercises, we have increased the % effort to 15% per year in the period after 2004. In addition, we removed the MPA from this layer in the contemporary period, as the MPA management plan (Fisheries and Oceans Canada, 2017) indicates that although the Gully MPA cannot legally exclude military activities, in practise the government agrees that such exercises do not occur inside the MPA.   
+ 
+```{r DND, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE, fig.fullwidth = TRUE}
+
+source(here::here("Analysis/militaryexMap.r"), local = knitr::knit_global())
+
+#Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
+# Plot map
+m6+m7 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
+
+```
+
+#### C. Oil & Gas Exploration and Operations 
+- Publicly available spatial and temporal data was collated from the Canada-Nova Scotia Offshore Petroleum Board (C-NSOPB) and the Canada-Newfoundland and Labrador Offshore Petroleum Board (C-NLOPB) websites (CNLOPB, 2021; CNSOPB, 2021). Shapefiles for existing pipelines, wells, platforms, seismic surveys (2D/3D), exploratory licenses, significant discovery licenses, production licenses and sector announcements provided as part of the call for bids processes were downloaded, cleaned, and checked for duplication. 
+- Activities occurring before and after 2004 were identified based on metadata in the shapefile or provided elsewhere on the website. 
+- The extent of oil and gas development activities in the portion of the study area regulated by the C-NLOPB (i.e., off Newfoundland) may be incomplete but this is unclear due to current data embargoes. However, based on our review of public reports on activities in the area, likely most seismic surveys were included in our analysis.  
+  
+##### i. Exploratory Activities
+- Oil & Gas Exploration includes seismic surveys, exploratory licenses and licensed activities such as shipping and test wells
+- Data includes seismic surveys and exploratory licenses
+- Individual seismic survey data only available for period up to 2004. Shapefiles for survey data was deduplicated, merged and shapefiles clipped to SDM area. Seismic surveys are represented as either 3D (polygons) or 2D (lines)
+- Exploratory Licenses have a 9 year term and post 2004 are only data available on exploratory activities
+
+```{r O&G explore, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
+
+ source(here::here("Analysis/oilngasMap.r"), local = knitr::knit_global())
+
+#Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
+# Plot maps
+m8+ m9 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
+
+```
+ 
+##### ii. Operational activities 
+- Oil & Gas Operations includes wells, pipelines, and platforms which are treated as presence absence data as per Halpern et al. (2008)
+- Some of this infrastructure has been decommissioned since it was built, however the ongoing risk associated with pollution is assumed to continue over the entire study period. 
+
+```{r Operations, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
+#Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
+
+# Plot maps
+m10+ m11 + plot_layout(guides = "collect")
+```
+
+#### D. Shipping
+- From Halpern et al. 2015. Intensity raster of global shipping traffic is the same for both periods
+- As described in Halpern et al. 2015, this layer combines several years of shipping data but are mostly a static description of shipping patterns and intensity during 2011. 
+- Shipping is not excluded from Gully MPA
+   
+```{r Shipping Effort, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
+source(here::here("Analysis/shipMap.r"), local = knitr::knit_global())
+
+m14
+
+```
+  
+#### E. Climate Change - Positive SST anomalies
+  - From Halpern et al. 2015. Number of positive SST anomalies in the period relative to SST in 1985-1990.
+  - From Halpern et al. 2008 "Changes in sea surface temperature as a result of climate change will have varying effects on species and ecosystems... Potential for ecological change in response to changes in sea surface temperature can be measured as the frequency of temperature anomalies, where the temperature exceeds a threshold value like the long-term mean, or by a measure of the magnitude (°C) of the anomalies themselves (S19, 20)." 
+   
+```{r Climate change, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
+source(here::here("Analysis/sstMap.r"), local = knitr::knit_global())
+
+#Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
+# Plot maps
+m15+m16 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
+```
+
+### 3. Assessing cumulative impacts from individual threats
+- Scale stressor intensity data so values range between 0-1 for layers with effort information: Oil & Gas Explorations, Fishing effort, Shipping, SST anomalies
+- Read in Pre/Post layers, Log10[x+1] transform and then normalize effort grids by max value across both periods
+- Presence /absence of stressor footprint data values should be either 0 or 1
+- Stressor layers (effort or footprint) for each of the two periods are multiplied by the NBW vulnerability score
+- NBW Vulnerability score assigned based on sensitivity, temporal frequency and extent of stressor (See Impact Score Rationale below, Table 2 in Feyrer et al. 2022) 
+- Finally the values of stressors in each period are summed to assess Cumulative impact 
+  
+```{r Calc CHI, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE }
+source(here::here("Analysis/rescaleStressor.r"), local = knitr::knit_global())
+source(here::here("Analysis/calcCHI.r"), local = knitr::knit_global(), )
+
+# plot by threat
+include_graphics(fig3threatspath)
+ImpactScore1 = ImpactScore[c(1,3,2, 4:6), 2:6]
+names(ImpactScore1) <- gsub('[.].+', '', names(ImpactScore1))
+
+#Table 1
+ #format table
+  kbl(ImpactScore1, booktabs = TRUE, caption = "Impact Score Rationale Table" ) %>%kable_styling(latex_options="scale_down")%>% row_spec (0, bold = T)%>%landscape( margin = NULL)
+
+  
+  #plot CHI PRE/ POST
+include_graphics(fig4CHIpath)
+```
+
+### 4. Calculating difference in CHI between periods 
+  - The difference in Cumulative impact between periods highlights measures the cell-by-cell difference between CHI
+  - Can be used to understand areas and intensity of differences in threats to NBW over time 
+  - Absolute diference is Contemporary period - Early Period  
+
+##### RMS Error 
+- Square Root(sum(e^2)/n) 
+- About 2/3 of all the cells will differ by less than the rmse.
+- About 95% of all the cells will differ by less than twice the rmse.
+
+```{r Calc CHI difference, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
+
+# Plot Absolute Difference between periods
+# Plot RMSE Difference & Plot RMSE Difference >2
+
+include_graphics(fig5CHIpath)
+
+```
+
+### 5. Summary Stats on CHI
+
+```{r Summary Stats, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
+source(here::here("Analysis/statsCHI.r"), local = knitr::knit_global())
+
+#tables-----
+  #format threat contribution table
+threats_tbl1 = threats_tbl[, c(1:4, 6:8)]
+names(threats_tbl1) <- gsub('[.].+', '', names(threats_tbl1))
+threats_tbl1[,1] <- gsub('[.]', ' ', threats_tbl1[,1])
+threats_tbl1[,1] <- gsub('2', '', threats_tbl1[,1])
+
+  kable(threats_tbl1, align=rep('l', 6), booktabs = TRUE, caption = "Summary of Impact by Threat",  digits = rep(2, 6))%>% add_header_above(c(" " = 1, "Early Period \n1988-2004" = 3, "Contemporary Period \n2005-2019" = 3)) %>%kable_styling(latex_options = "HOLD_position")%>% row_spec (0, bold = T) 
+  
+  #format CHI table
+
+  summarytc1 = summarytc[, c(1, 4, 9,8, 6:7)]
+  names(summarytc1) <- c("Period", "Median", "Mean","sd", "Max", "Sum")
+summarytc1[,1] = c("Early 1988- 2004", "Contemporary 2005-2019")
+  summarytc1%>%kable(align=rep('l', 7), booktabs = TRUE, caption = "Cumulative Impact Scores by Period", digits = rep(3, 6)) %>%kable_styling(latex_options = "HOLD_position")%>% row_spec (0, bold = T)
+  
+  round(RMSError, digits = 3)
+  
+#format dif table
+  BigDif%>%kable(align=rep('c', 3), booktabs = TRUE, caption = "Diference in CHI increase and decrease 1988-2019", digits = rep(3, 6)) %>%kable_styling(latex_options = "HOLD_position")%>% row_spec (0, bold = T)
+
+```
