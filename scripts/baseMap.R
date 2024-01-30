@@ -13,7 +13,7 @@
 
 pacman::p_load(sp, terra, dplyr, sf, viridis, ggplot2, ggrepel, stringr, here, ggtext, readr, grid,
                rnaturalearth, rnaturalearthdata, pals, tidyr, fuzzyjoin, patchwork,mapsf,
-               ggforce, readr, raster, ggspatial, lubridate, stars, patchwork, scales, RColorBrewer, grafify)
+               ggforce, readr, ggspatial, lubridate, stars, patchwork, scales, RColorBrewer, grafify)
 
 sf_use_s2(FALSE)
 
@@ -29,18 +29,29 @@ sf_use_s2(FALSE)
           UTM_BOUND = st_bbox(GEO_BOUND)%>%st_as_sfc()%>% st_sf()%>%st_transform(UTM20)
           
           # bound box SS data for inset-----
-          Bound_boxB <- st_bbox( c(xmin = -70,ymin = 40, xmax = -50, ymax =48 ), crs = st_crs(4326))
+          Bound_boxB <- st_bbox( c(xmin = -70,ymin = 40, xmax = -48, ymax =48 ), crs = st_crs(4326))
           Bound_boxB <- Bound_boxB %>%
             st_as_sfc()%>% #turns the bounding box into a sfc object, that just describes a specific geometry
             st_sf()
           Bound_boxBUTM <- Bound_boxB%>%st_transform(UTM20)
           
           ext(Bound_boxBUTM)
-          
+          #Region boundaries ------
           SShelf <-read_sf("~/CODE/prepWSDB/shapefiles/DFO_NAFO_EEZ_Land.shp")%>%dplyr::filter(DFO_REGION == "MAR")%>%st_transform(4326)
+          Gulf <-read_sf("~/CODE/prepWSDB/shapefiles/DFO_NAFO_EEZ_Land.shp")%>%dplyr::filter(DFO_REGION == "GULF")%>%st_transform(4326)
+          QC <-read_sf("~/CODE/prepWSDB/shapefiles/DFO_NAFO_EEZ_Land.shp")%>%dplyr::filter(DFO_REGION == "QC")%>%st_transform(4326)
+          
+          
           plot(st_geometry(SShelf))
           # write_sf(SShelf, "~/CODE/shapefiles/DFORegions/ScotianShelf.shp", overwrite = T)
 
+          ### Land ------
+          #all countries
+          
+          land <- read_sf(here::here("~/CODE/shapefiles/coastline/worldcountries/ne_50m_admin_0_countries.shp"))%>%dplyr::filter(CONTINENT == "North America")
+          landUTM = land%>%st_transform(UTM20) %>%st_intersection(UTM_BOUND)
+          
+          
           ### bathy data -------
           r <- terra::rast("~/CODE/shapefiles/Bathymetry/GEBCO_bathy/gebco_2020.tif")
           ext(r)
@@ -90,7 +101,7 @@ sf_use_s2(FALSE)
           # write_sf(OECMS, "shapes/SMIF/EastCan_OECMS.shp", overwrite = T)
           
           # OECMS_UTM= OECMS%>%
-            st_transform(UTM20) 
+            # st_transform(UTM20) 
           
           
           #O&G exclusions
@@ -100,7 +111,7 @@ sf_use_s2(FALSE)
           
           
           # gbPA_UTM= gbPA%>%
-            st_transform(UTM20) 
+            # st_transform(UTM20) 
           
           #NAFO Closures
           #from http://www.atlas-horizon2020.eu/layers/geonode:a__2019_Closures_sponge_coral
@@ -119,26 +130,32 @@ sf_use_s2(FALSE)
           #   st_transform(UTM20)
           
           #other critical habitat areas
-          whale_CH <- sf::st_read("~/CODE/shapefiles/CriticalHabitat_FGP.gdb", layer = "DFO_SARA_CritHab_2022_FGP_EN")
-          st_transform(4326)%>%st_intersection(Bound_boxB)
+          whale_CH <- sf::st_read("~/CODE/shapefiles/SAR_CH/NARW_CH/NARW_CH.shp")%>%st_transform(4326)%>%st_intersection(Bound_boxB)
+          
           plot(st_geometry(whale_CH))
           
-          ##NBW Habitat Areas ---------
-          # CH - No Zone 1
-          NBW_CH <- read_sf(here::here("~/CODE/shapefiles/bwHabitat/NBW_CH/NorthernBottlenoseWhale_CH.shp"))
+          ##Whale Habitat Areas ---------
+          # CH - 
+          NBW_CH <- read_sf(here::here("~/CODE/shapefiles/SAR_CH/NBW_CH/NorthernBottlenoseWhale_CH.shp"))
+          NARW_CH <- read_sf(here::here("~/CODE/shapefiles/SAR_CH/NARW_CH/NARW_CH.shp"))
+          # plot(st_geometry(NBW_CH))
           
           # write_sf(NBW_CH, "shapes/SMIF/NBW_CH.shp", overwrite = T)
-          
-          
           NBW_CH_UTM=NBW_CH%>%
             st_transform(UTM20)
           
-          ##IMP HAB 2023 area  
-          nbw_ImHab2023 = read_sf(here::here("~/CODE/shapefiles/bwHabitat/Feyreretal2024/NBW_ImHabitat2023.shp"))%>%
+          ##NBW IMP HAB 2023 area  
+          nbw_ImHab2023 = read_sf(here::here("~/CODE/shapefiles/ImpHabitat/Feyreretal2024/NBW_ImHabitat2023.shp"))%>%
             st_transform(4326)%>%st_intersection(Bound_boxB)
           
-          # write_sf(nbw_ImHab2023, "shapes/SMIF/SS_NBW_ImpHab.shp", overwrite = T)
+          Blue_ImHab2023 = read_sf(here::here("~/CODE/shapefiles/ImpHabitat/RorqualBleu_AiresImportantes/RorqualBleu_AiresImportantes.shp"))%>%
+            st_transform(4326)%>%st_difference(Gulf)%>%st_difference(QC)%>%st_intersection(Bound_boxB)
           
+
+          plot(st_geometry(Blue_ImHab2023))
+          
+          # write_sf(nbw_ImHab2023, "shapes/SMIF/SS_NBW_ImpHab.shp", overwrite = T)
+          # write_sf(Blue_ImHab2023, "shapes/SMIF/SS_BW_ImpHab.shp", overwrite = T)
           
           # ext(nbw_ImHab2023)
           # plot(st_geometry(nbw_ImHab2023))
@@ -179,59 +196,45 @@ template_s = st_as_stars(template, as_points = FALSE, merge = FALSE)
               ACTIVE_MPAS= ALL_MPAS_UTM%>%filter(Type != "MPA AOI")
               ACTIVE_MPAS = ACTIVE_MPAS%>%mutate(period = ifelse(Implmnt <2004, "Early Period", "Contemporary Period"))
 
+#  PLOT basemap as object m-----
+              m <- ggplot() + theme_bw() +
+                # Assign a dummy variable for each layer
+                geom_sf(data = SShelf, aes(fill = "Maritimes"), col = NA, alpha = .5, size = .2) +
+                geom_sf(data = Gulf, aes(fill = "Gulf"), col = NA, alpha = .5, size = .2) +
+                geom_sf(data = QC, aes(fill = "QC"), col = NA, alpha = .5, size = .2) +
+                geom_sf(data = land, aes(fill = "Land"), color = NA) +
+                geom_sf(data = cont %>% filter(level == -200 | level == -1000 | level == -2000), aes(color = "Contours")) +
+                geom_sf(data = nbw_ImHab2023, aes(fill = "NBW Imp Hab"), col = "black", alpha = .2, size = .15) +
+                geom_sf(data = Blue_ImHab2023, aes(fill = "Blue Imp Hab"), col = "blue", alpha = .2, size = .5) +
+                geom_sf(data = ALL_MPAS, aes(fill = "OA MPAs"), col = NA, alpha = .5, size = .2) +
+                geom_sf(data = OECMS, aes(fill = "OECMS"), col = NA, alpha = .5, size = .2) +
+                geom_sf(data = gbPA, aes(fill = "G.B. Excl."), col = NA, alpha = .5, size = .2) +
+                geom_sf(data = NBW_CH, aes(fill = "NBW CH"), col = "red", size = .15) +
+                geom_sf(data = NARW_CH, aes(fill = "NARW CH"), col = "red", size = .15) +
+                coord_sf(xlim = c(-67.5, -51), ylim = c(40, 48)) +
+                ylab("") + xlab("") +
+                theme(plot.margin = margin(.1, .5, .1, .1, "cm"),
+                      panel.grid.major = element_blank(),
+                      panel.grid.minor = element_blank(),
+                      legend.position = "bottom", legend.title = element_blank()) +
+                # Define legends
+                scale_fill_manual(values = c("Maritimes" = "yellow", "Gulf" = "pink", "QC" = "purple",
+                                             "Land" = "grey80", "OA MPAs" = "blue", "OECMS" = "green",
+                                             "G.B. Excl." = "orange", "NBW Imp Hab" = "black", 
+                                             "Blue Imp Hab" = "blue", "NBW CH" = "red", "NARW CH" = "red"),
+                                  name = "Layer Type") +
+  scale_color_manual(values = c("Contours" = "gray"), name = "Layer Type")+
+                guides(fill = guide_legend(override.aes = list(color = NA)))
+              
 
-# Land ------
-                #all countries
-                
-              land <- read_sf(here::here("~/CODE/shapefiles/coastline/worldcountries/ne_50m_admin_0_countries.shp"))%>%dplyr::filter(CONTINENT == "North America")
-              landUTM = land%>%st_transform(UTM20) %>%st_intersection(UTM_BOUND)
+m              
+    
+#save map
+#  
+ gg_Fig2path =  here::here("shapes/SMIF/Summary_MCAS.png")
+ggsave(gg_Fig2path, m, width = 7, height = 5, units = "in", dpi = 300)
 
-# import Ha detects
-detectHa = read_sf(here::here("Data/Ha/Ha_sf.shp"))%>%st_transform(UTM20)%>%st_intersection(nbw_habUTM)
-detectHa$speciesName = "Hyperoodon ampullatus"
-
-#import Ha sightings
-sightHa = read.csv(here::here("Data/Ha/HaSightings_2021.csv"))%>%mutate(LongDec  = (Longitude)*-1, LatDec = Latitude)
-sightHa = st_as_sf(sightHa, coords = c("LongDec", "LatDec"), crs = 4326)%>%st_transform(UTM20)%>%st_intersection(nbw_habUTM)
-
-#  plot basemap as object m-----
-m<-ggplot() +
-  scale_fill_viridis(discrete = T, option = "D")+
-  theme_bw()+
-  # add land region
-  geom_sf(  data = land, color=NA, fill="grey50") +
-  
-  # add contours
-  geom_sf(data = cont, col = "gray", size = 0.2) +
-  
-  #add NBW area
-  geom_sf(data = nbw_ImHab2023, col = "black",fill = NA, size = .15)+
-  geom_sf(data = NBW_CH, col = "red",fill = NA, size = .15)+
-  
-  #add conservation zones
-  geom_sf(data = ALL_MPAS, col = NA, fill = "blue", alpha = .5, size = .2)+
-  geom_sf(data = OECMS, col = NA, fill = "green", alpha = .5, size = .2)+
-  geom_sf(data = gbPA, col = NA, fill = "orange", alpha = .5, size = .2)+
-
-  # #add sightings and detects of NBW
-  # 
-  # geom_sf(data = sightHa, colour = "#ff593d", fill = NA, 
-  #         size = 1.2, shape = 18) +
-  # geom_sf(data = detectHa, colour = "#93003a", fill = NA, 
-  #         size = 1, shape = 1) +
-  # set map limits
-  coord_sf(xlim = c(-67, -51), ylim = c(40, 47)) +
-  ##ff593d,#93003a
- 
-  guides(fill = guide_legend(ncol = 5))+
-  # format axes
-  ylab("") + 
-  xlab("") +
-  theme(plot.margin = margin(.1, .5, .1, .1, "cm"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        legend.position="top", legend.title = element_blank()    )
-m
+          
 
 # #build  map with box outline for inset
 # m1 = m +
@@ -291,9 +294,5 @@ m
 #   )
 # 
 #  
-# #save map
-#  
-#  gg_Fig2path =  here::here("Results/FIGS/Fig2_map.png")
-# ggsave(gg_Fig2path, gg_Fig2, width = 7, height = 5, units = "in", dpi = 300)
-# 
+#
 # 
