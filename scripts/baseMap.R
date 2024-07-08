@@ -2,7 +2,7 @@
 
 #updated
 # - This includes Coastlines, bathymetry, NBW habitat area, and conservation zones 
-# - Code imports data and transforms to UTM Zone 20 where necessary
+# - Code imports shapefile data and transforms to UTM Zone 20 where necessary
 # - Bathymetric data from Atlas of Canada available at: (https://ftp.maps.canada.ca/pub/nrcan_rncan/vector/framework_cadre/North_America_Atlas10M/bathymetry/)
 # - Conservation zones compiled from layers available as shapefiles. 
 # - OECMS from https://open.canada.ca/data/en/dataset/44769543-7a23-4991-a53f-c2cf7c7a946f  
@@ -12,7 +12,7 @@
 # 
 
 pacman::p_load(sp, terra, dplyr, sf, viridis, ggplot2, ggrepel, stringr, here, ggtext, readr, grid,
-               rnaturalearth, rnaturalearthdata, pals, tidyr, fuzzyjoin, patchwork,mapsf,
+               pals, tidyr, fuzzyjoin, patchwork, mapsf,
                ggforce, readr, ggspatial, lubridate, stars, patchwork, scales, RColorBrewer, grafify)
 
 sf_use_s2(FALSE)
@@ -51,37 +51,47 @@ sf_use_s2(FALSE)
           ### Land ------
           #all countries
           
-          land <- read_sf(here::here("~/CODE/shapefiles/coastline/worldcountries/ne_50m_admin_0_countries.shp"))%>%dplyr::filter(CONTINENT == "North America")
-          landUTM = land%>%st_transform(UTM20) %>%st_intersection(UTM_BOUND)
+          land <- read_sf(here::here("~/CODE/shapefiles/coastline/worldcountries/ne_50m_admin_0_countries.shp"))%>%
+           dplyr::filter(CONTINENT == "North America")
+          landUTM = land%>%st_transform(UTM20) %>%st_intersection(Bound_boxBUTM)
           
           
           ### bathy data -------
-          r <- terra::rast("~/CODE/shapefiles/Bathymetry/GEBCO_bathy/gebco_2020.tif")
-          ext(r)
-          crs(r)
+          #original bathy data might be a bit smoother
+          bathy <- read_sf(here::here("shapes/bathymetry_pl_v2/bathymetry_l_v2.shp"))%>%
+            st_transform(UTM20)%>%st_intersection(Bound_boxBUTM)           #change projection from Albers to Lat Long
+
           
-          #need to downsample bc too big
-          bathy = terra::aggregate(r, fact = 2)
-          # bathy_df <- as.data.frame(bathy, xy = T)%>%dplyr::rename(Depth = gebco_2020)
-          
-          #now crop & project to UTM extent of GEOGRAPHIC area
-          bathy_UTM = bathy%>%crop(GEO_BOUND)%>%terra::project("EPSG:32620")
-          
-          bathy<- as.data.frame(bathy_UTM, xy = T)%>%dplyr::rename(Depth = gebco_2020)%>%
-            mutate(Depth = ifelse(Depth >=-10, NA, Depth))
-          
-          #now crop to extent of Gully area
-          bathy_crop = bathy_UTM%>%crop(Bound_boxBUTM)
-          # crs(bathy_crop)
-          
-          bathy_cropUTM <- as.data.frame(bathy_crop, xy = T)%>%dplyr::rename(Depth = gebco_2020)%>%
-            mutate(Depth = ifelse(Depth >=-10, NA, Depth))
-          
-          ###contours----
-          cont <- as.contour(r, levels= c( -200, -350, -400, -500,-1000,-2000,-2500,-3000, -3200, -4000, -5000))
-          cont <- st_as_sf(cont)%>%st_cast("LINESTRING")
-          cont_UTM = cont%>%st_transform(UTM20)%>%st_intersection(UTM_BOUND)
-                                    
+          #filter 
+          bathy = bathy%>%
+            filter(DEPTH >150)
+       
+          # r <- terra::rast("~/CODE/shapefiles/Bathymetry/GEBCO_bathy/gebco_2020.tif")
+          # ext(r)
+          # crs(r)
+          # 
+          # #need to downsample bc too big
+          # bathy = terra::aggregate(r, fact = 2)
+          # # bathy_df <- as.data.frame(bathy, xy = T)%>%dplyr::rename(Depth = gebco_2020)
+          # 
+          # #now crop & project to UTM extent of GEOGRAPHIC area
+          # bathy_UTM = bathy%>%crop(GEO_BOUND)%>%terra::project("EPSG:32620")
+          # 
+          # bathy<- as.data.frame(bathy_UTM, xy = T)%>%dplyr::rename(Depth = gebco_2020)%>%
+          #   mutate(Depth = ifelse(Depth >=-10, NA, Depth))
+          # 
+          # #now crop to extent of Gully area
+          # bathy_crop = bathy_UTM%>%crop(Bound_boxBUTM)
+          # # crs(bathy_crop)
+          # 
+          # bathy_cropUTM <- as.data.frame(bathy_crop, xy = T)%>%dplyr::rename(Depth = gebco_2020)%>%
+          #   mutate(Depth = ifelse(Depth >=-10, NA, Depth))
+          # 
+          # ###contours----
+          # cont <- as.contour(r, levels= c( -200, -350, -400, -500,-1000,-2000,-2500,-3000, -3200, -4000, -5000))
+          # cont <- st_as_sf(cont)%>%st_cast("LINESTRING")
+          # cont_UTM = cont%>%st_transform(UTM20)%>%st_intersection(UTM_BOUND)
+          #                           
     #MPAs & conservation zones compiled from layers available as shapefiles ----
    
           ###### Compile all conservation zone information
@@ -125,7 +135,7 @@ sf_use_s2(FALSE)
             st_transform(UTM20)
           # plot(st_geometry(NARW_CH_UTM))
           
-          ##NBW Habitat Areas ---------
+          #NBW Habitat Areas ---------
           NBW_CH_UTM <- read_sf(here::here("~/CODE/shapefiles/SAR_CH/NBW_CH/NorthernBottlenoseWhale_CH.shp"))%>%
             st_transform(UTM20)%>%mutate(NAME = DESCRIP)
           
@@ -135,22 +145,30 @@ sf_use_s2(FALSE)
             st_transform(UTM20)
          #bluewhale imp habitat
           Blue_ImHab2023_UTM = read_sf(here::here("~/CODE/shapefiles/ImpHabitat/RorqualBleu_AiresImportantes/RorqualBleu_AiresImportantes.shp"))%>%
-            st_transform(4326)%>%st_difference(Gulf)%>%st_difference(QC)%>%st_intersection(Bound_boxB)%>%st_union()%>%
-            st_transform(UTM20)
+            st_transform(4326)%>%st_transform(UTM20)%>%st_difference(Gulf)%>%st_difference(QC)%>%
+            st_intersection(Bound_boxB)%>%st_union()
           
           # plot(st_geometry(Blue_ImHab2023_UTM))
+          
+          ##NBW sightings & detections-----------
+          
+          # import Ha detects
+          #  = TOWED ARRAY & AMAR
+          BW_detects = read_sf("~/CODE/TowedArray/Shapes/BW.PAM_sf.shp")%>%
+            filter(species == "Ha")%>%st_transform(UTM20)%>%st_intersection(SShelf)
+          
+          plot(st_geometry(BW_detects))
+          
+          #import Ha sightings
+          sightHa = read_sf("~/CODE/shapefiles/Ha_locations/Ha_locations_2023.shp")%>%
+           st_transform(UTM20)%>%st_intersection(SShelf)
+          plot(st_geometry(sightHa))
           
      
 #create one layer for PAs
         MCAs =   rbind(Gully_UTM%>%select(NAME), NBW_CH_UTM%>%select(NAME)
                        ) %>%filter(NAME == "Zone 1" | NAME == "Haldimand Canyon"| NAME == "Shortland Canyon"|
                                      NAME == "Gully MPA (Marine Protected Area), outer boundary" )
-        studyarea = st_union( EC_MCA, nbw_ImHab2023_UTM)%>%st_intersection(SShelf)
-        plot(st_geometry(studyarea))
-        
-        terra::ext(studyarea)
-        
-        
         plot(st_geometry(MCAs))
        #not USED MCAS:  gbPA_UTM%>%select(NAME),OECMS_UTM%>%select(NAME), ALL_MPAS_UTM%>%select(NAME), Coral_UTM%>%select(NAME)
         # %>%st_intersection(SShelf)
@@ -173,39 +191,67 @@ sf_use_s2(FALSE)
               # ACTIVE_MPAS = ACTIVE_MPAS%>%mutate(period = ifelse(Implmnt <2004, "Early Period", "Contemporary Period"))
 
 #  PLOT basemap as object m-----
+        
+        # Define the coordinate range in UTM 20
+        x_min <- 712179.56
+        x_max <- 1009419.59
+        y_min <- 4695205.74
+        y_max <- 4993983.86
+        
+        
               m <- ggplot() + theme_bw() +
-                # Assign a dummy variable for each layer
-                # geom_sf(data = SShelf, aes(fill = "Maritimes"), col = NA, alpha = .25, size = .2) +
-                # geom_sf(data = NF, aes(fill = "NFLD"), col = NA, alpha = .25, size = .2) +
-                geom_sf(data = landUTM, aes(fill = "Land"), color = "darkgray") +
-                geom_sf(data = cont %>% filter(level == -350 | level == -200 | level == -1000 | level == -2000), color = "gray") +
+                # Assign a dummy variable for each layer to hack legend
+                geom_sf(data = nbw_ImHab2023_UTM, aes(fill = "Important Habitat"), col = "#fde725", 
+                        alpha = .1, size = .15) +
+                geom_sf(data = landUTM, aes( color = "Sable Island"), fill = "gray", linewidth = .8) +
+                geom_sf(data = bathy, color = "gray") +
                 geom_sf(data = Gully_UTM%>%filter(NAME == "Gully MPA (Marine Protected Area), outer boundary"), 
                         aes(col = "The Gully"), fill = NA,  linewidth = .8) +
-                geom_sf(data = NBW_CH_UTM, aes(fill = "Critical Habitat"), col = "red", alpha = .5, size = .5) +
-                geom_sf(data = nbw_ImHab2023_UTM, aes(fill = "Important Habitat"), col = "orange", alpha = .1, size = .15) +
-                coord_sf(xlim = c( 712179.56476243, 1069419.59677608), ylim = c(4695205.73920141, 4993983.86018908), expand = F) +
-          ylab("") + xlab("") +
+                geom_sf(data = NBW_CH_UTM, aes(fill = "Critical Habitat"), col = "#440154", alpha = .5, size = .5) +
+               
+                #add sightings and detects of NBW
+                
+                geom_sf(data = sightHa, colour = "#ff593d", fill = NA, 
+                        size = 1.2, shape = 18) +
+                geom_sf(data = BW_detects, colour = "#93003a", fill = NA, 
+                        size = 1, shape = 1) +
+                
+                coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE) +
+                ylab("") + xlab("") +
                 theme(plot.margin = margin(.1, .5, .1, .1, "cm"),
                       panel.grid.major = element_blank(),
                       panel.grid.minor = element_blank(),
                       legend.position = "bottom", legend.title = element_blank()) +
                 # Define legends
+                
                 scale_fill_manual(values = c(
-                                             "Land" = "grey80", 
-                                             # "The Gully" = "lightblue", 
-                                             "Important Habitat" = "orange", 
-                                              "Critical Habitat" = "red"),
+                                             
+                                             "Important Habitat" = "#fde725", 
+                                              "Critical Habitat" = "#440154"),
                                   name = "Layer Type") +
-  scale_color_manual(values = c("The Gully" = "blue"), name = "Layer Type")+
-                guides(fill = guide_legend(override.aes = list(color = NA)))
+  scale_color_manual(values = c("The Gully" = "#21918c", "Sable Island" = "darkgrey"), name = "Layer Type")+
+                # guides(fill = guide_legend(override.aes = list(color = NA)))+
               
 
-m              
-    
-#save map
+# # add scale bar
+  annotation_scale(location = "br", width_hint=0.25,
+                   text_cex = 0.75,
+                   bar_cols = c("grey40", "white")) +
+
+          annotate(geom = "text", x = 832202.7 , y = 4839000, label = "The Gully MPA", fontface = "italic",
+                   color = "black", size = 3) +
+          annotate(geom = "text", x = 877340.6 , y = 4873735, label = "Shortland", fontface = "italic",
+                   color = "black", size = 3) +
+          annotate(geom = "text", x = 910303.4 , y = 4887964, label = "Haldimand", fontface = "italic",
+                   color = "black", size = 3)
+
+        
+        print(m)
+        
+        #save map
 #  
- gg_Fig2path =  here::here("figs/Summary_MPA_CH.png")
-ggsave(gg_Fig2path, m, width = 7, height = 5, units = "in", dpi = 300)
+ gg_Fig2path =  here::here("figs/Fig_1b.png")
+ggsave(gg_Fig2path, m,  dpi = 300)
 
 
 # #a template raster for later???
