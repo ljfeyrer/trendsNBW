@@ -66,32 +66,7 @@ sf_use_s2(FALSE)
           bathy = bathy%>%
             filter(DEPTH >150)
        
-          # r <- terra::rast("~/CODE/shapefiles/Bathymetry/GEBCO_bathy/gebco_2020.tif")
-          # ext(r)
-          # crs(r)
-          # 
-          # #need to downsample bc too big
-          # bathy = terra::aggregate(r, fact = 2)
-          # # bathy_df <- as.data.frame(bathy, xy = T)%>%dplyr::rename(Depth = gebco_2020)
-          # 
-          # #now crop & project to UTM extent of GEOGRAPHIC area
-          # bathy_UTM = bathy%>%crop(GEO_BOUND)%>%terra::project("EPSG:32620")
-          # 
-          # bathy<- as.data.frame(bathy_UTM, xy = T)%>%dplyr::rename(Depth = gebco_2020)%>%
-          #   mutate(Depth = ifelse(Depth >=-10, NA, Depth))
-          # 
-          # #now crop to extent of Gully area
-          # bathy_crop = bathy_UTM%>%crop(Bound_boxBUTM)
-          # # crs(bathy_crop)
-          # 
-          # bathy_cropUTM <- as.data.frame(bathy_crop, xy = T)%>%dplyr::rename(Depth = gebco_2020)%>%
-          #   mutate(Depth = ifelse(Depth >=-10, NA, Depth))
-          # 
-          # ###contours----
-          # cont <- as.contour(r, levels= c( -200, -350, -400, -500,-1000,-2000,-2500,-3000, -3200, -4000, -5000))
-          # cont <- st_as_sf(cont)%>%st_cast("LINESTRING")
-          # cont_UTM = cont%>%st_transform(UTM20)%>%st_intersection(UTM_BOUND)
-          #                           
+                                    
     #MPAs & conservation zones compiled from layers available as shapefiles ----
    
           ###### Compile all conservation zone information
@@ -146,7 +121,7 @@ sf_use_s2(FALSE)
          #bluewhale imp habitat
           Blue_ImHab2023_UTM = read_sf(here::here("~/CODE/shapefiles/ImpHabitat/RorqualBleu_AiresImportantes/RorqualBleu_AiresImportantes.shp"))%>%
             st_transform(4326)%>%st_transform(UTM20)%>%st_difference(Gulf)%>%st_difference(QC)%>%
-            st_intersection(Bound_boxB)%>%st_union()
+            st_intersection(Bound_boxBUTM)%>%st_union()
           
           # plot(st_geometry(Blue_ImHab2023_UTM))
           

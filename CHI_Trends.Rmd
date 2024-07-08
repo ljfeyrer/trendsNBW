@@ -77,36 +77,27 @@ include_graphics(gg_Fig2path)
 
 ------------------------------------------------------------------------
 
-### 2. Import stressor data
+### 2. Import human activities (threats) data
 
+-   Human activities (threats) with available spatial information
+    included Fishing (Entanglement, Depredation), Military Exercise
+    Zones (Military Sonar), Oil and Gas Development (Large Oil spills
+    \>700,000 L) and Vessel Traffic (Vessel Strike).
+-   Whaling has not occurred in the region across the study period.
 -   Data is divided into two periods, early (1988-2004) and contemporary
-    (2005-2019)
--   Stressors with regionally specific information are Longline Fishing
-    effort, Military Exercises, Oil and Gas Exploration and Development
-    Activities\
--   Remaining stressors (Other Fishing gears, Shipping and SST
-    anomalies) are sourced from Halpern et al. 2015
+    (2005-2023)
 
-#### A. Fishing Effort
+#### A. Fishing Effort (Entanglement, Depredation)
 
--   Long line fishery effort was not available as part of Halpern et
-    al.'s global data set for the study area. Code below imports data
-    for the fisheries created by:
--   S. Butler, D. Ibarra and S. Coffen-Smout, 2019. Maritimes Region
-    Longline and Trap Fisheries Footprint Mapping for Marine Spatial
-    Planning and Risk Assessment. Can. Tech. Rep. Fish. Aquat. Sci.
-    3293: v + 30 p. Data available at:
-    <https://open.canada.ca/data/en/dataset/3d2e1a84-20f5-4a61-90e4-94760c80ebb9>
-
-##### i. Bottom Longline effort
-
--   Uses bottom long line fishing effort data created by Butler et al.
-    2019, where fishing effort is sum of effort in hrs/ km2 over the
-    entire period 2002-2017.
--   Early Period uses this dataset as is, given overall spatial effort
-    has not changed. Contemporary period uses this dataset with Zone 1
-    of Gully removed to account for fishing closures that occured there
-    post 2004.
+-   Fishing footprints for the study area was assembled for a
+    combination of fisheries based on publicly available fisheries
+    distribution data for the region.
+-   Given overall spatial footprint has not changed, but info on effort
+    prior to 2004 is not widely available for all fisheries, the data
+    used for both periods is the same, but omits Zone 1 of Gully to
+    account for fishing closures that occurred there in 2005.
+-   This threat layer includes data on bottom longline, pelagic
+    longline, bottom and midwater trawl and trap fisheries.
 
 ```{r Butler Bottom Longline, include = TRUE, fig.fullwidth = TRUE}
 source(here::here("scripts/fishMap.r"), local = knitr::knit_global())
@@ -118,18 +109,6 @@ m2+m3+ plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ```
 
-##### ii. Pelagic longline effort
-
--   Pelagic longline fishing effort data is provided in mins/ km2 from
-    2003-2018 in log scale.
--   Dataset focuses on vessels reporting to DFO Maritimes region and
-    only covers the western region off Newfoundland. Additional effort
-    occurs in Newfoundland waters but was not included in this dataset.
--   Early Period uses this dataset as is, given overall spatial effort
-    has not changed. Contemporary period uses this dataset with Zone 1
-    of Gully removed to account for fishing closures that occured post
-    2004.
-
 ```{r Butler Pelagic Longline, include = TRUE, fig.fullwidth = TRUE}
 
 #Pelagic Longline
@@ -139,29 +118,6 @@ m4+m5+ plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ```
 
-##### iii. Other Fishing Effort
-
--   Halpern et al. (2015) used landings normalized globally by
-    productivity for different gear types
--   Methods for estimating fishing effort is based annual wild caught
-    industrial fisheries catch (tonnes) by taxa and gear type at 0.5°
-    resolution as described in:
--   Halpern, B. S. et al. Patterns and emerging trends in global ocean
-    health. PlosOne <DOI:10.1371/journal.pone.0117863> (2015).
-
-Layers are separated based on gear type and in units of tons of fish per
-tons of carbon in each 1 km2. Data downloaded from:\
-Benjamin Halpern, Melanie Frazier, John Potapenko, Kenneth Casey, Kellee
-Koenig, et al. 2015. Cumulative human impacts: raw stressor data (2008
-and 2013). Knowledge Network for Biocomplexity. <doi:10.5063/F1S180FS>.
-
-Gear type layers included here: i. demersal destructive (e.g., bottom
-trawl), ii. demersal non-destructive high bycatch (e.g., pots, traps),
-iii. demersal non-destructive low bycatch (e.g., hook and line), iv.
-pelagic low bycatch (e.g., hook and line) - Post 2004, consistent with
-other fishing effort layers uses this dataset with Zone 1 of Gully
-removed to account for fishing closures that occured in 2005
-
 ```{r Halpern et al. Fishing, include = TRUE, fig.fullwidth = TRUE}
 
 #Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
@@ -170,7 +126,7 @@ m12 +m13 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ```
 
-#### B. Military activities (MFAS)
+#### B. Military exercise zones (Military Sonar)
 
 -   Military exercises– The Department of National Defence has
     designated Firing Practice and Exercise Areas off the coasts of
@@ -220,33 +176,21 @@ m6+m7 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ```
 
-#### C. Oil & Gas Exploration and Operations
+#### C. Oil and Gas Development (Large Oil spills \>700,000 L)
 
 -   Publicly available spatial and temporal data was collated from the
-    Canada-Nova Scotia Offshore Petroleum Board (C-NSOPB) and the
-    Canada-Newfoundland and Labrador Offshore Petroleum Board (C-NLOPB)
-    websites (CNLOPB, 2021; CNSOPB, 2021). Shapefiles for existing
-    pipelines, wells, platforms, seismic surveys (2D/3D), exploratory
-    licenses, significant discovery licenses, production licenses and
-    sector announcements provided as part of the call for bids processes
-    were downloaded, cleaned, and checked for duplication.
+    Canada-Nova Scotia Offshore Petroleum Board (C-NSOPB) websites
+    (CNSOPB, 2021). Shapefiles for existing pipelines, wells, platforms,
+    exploratory licenses, significant discovery licenses, production
+    licenses and sector announcements provided as part of the call for
+    bids processes were downloaded, cleaned, and checked for
+    duplication.
+
 -   Activities occurring before and after 2004 were identified based on
     metadata in the shapefile or provided elsewhere on the website.
--   The extent of oil and gas development activities in the portion of
-    the study area regulated by the C-NLOPB (i.e., off Newfoundland) may
-    be incomplete but this is unclear due to current data embargoes.
-    However, based on our review of public reports on activities in the
-    area, likely most seismic surveys were included in our scripts.
 
-##### i. Exploratory Activities
+    ##### i. Exploratory Activities
 
--   Oil & Gas Exploration includes seismic surveys, exploratory licenses
-    and licensed activities such as shipping and test wells
--   Data includes seismic surveys and exploratory licenses
--   Individual seismic survey data only available for period up to 2004.
-    Shapefiles for survey data was deduplicated, merged and shapefiles
-    clipped to SDM area. Seismic surveys are represented as either 3D
-    (polygons) or 2D (lines)
 -   Exploratory Licenses have a 9 year term and post 2004 are only data
     available on exploratory activities
 
@@ -262,8 +206,7 @@ m8+ m9 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ##### ii. Operational activities
 
--   Oil & Gas Operations includes wells, pipelines, and platforms which
-    are treated as presence absence data as per Halpern et al. (2008)
+-   Oil & Gas Operations includes wells, pipelines, and platforms
 -   Some of this infrastructure has been decommissioned since it was
     built, however the ongoing risk associated with pollution is assumed
     to continue over the entire study period.
@@ -275,7 +218,7 @@ m8+ m9 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 m10+ m11 + plot_layout(guides = "collect")
 ```
 
-#### D. Shipping
+#### D. Vessel Traffic (Vessel Strike)
 
 -   From Halpern et al. 2015. Intensity raster of global shipping
     traffic is the same for both periods
@@ -289,26 +232,6 @@ source(here::here("scripts/shipMap.r"), local = knitr::knit_global())
 
 m14
 
-```
-
-#### E. Climate Change - Positive SST anomalies
-
--   From Halpern et al. 2015. Number of positive SST anomalies in the
-    period relative to SST in 1985-1990.
--   From Halpern et al. 2008 "Changes in sea surface temperature as a
-    result of climate change will have varying effects on species and
-    ecosystems... Potential for ecological change in response to changes
-    in sea surface temperature can be measured as the frequency of
-    temperature anomalies, where the temperature exceeds a threshold
-    value like the long-term mean, or by a measure of the magnitude (°C)
-    of the anomalies themselves (S19, 20)."
-
-```{r Climate change, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
-source(here::here("scripts/sstMap.r"), local = knitr::knit_global())
-
-#Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
-# Plot maps
-m15+m16 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 ```
 
 ### 3. Assessing cumulative impacts from individual threats
