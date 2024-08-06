@@ -229,6 +229,6 @@ sf_use_s2(FALSE)
 ggsave(gg_Fig2path, m,  dpi = 300)
 
 
-# #a template raster for later???
+# #a template raster for data processing
 template <- rast(vect(Bound_boxBUTM), res = 1000)
 template_s = st_as_stars(template, as_points = FALSE, merge = FALSE)

@@ -6,6 +6,8 @@
 .RData
 .RDataTmp
 
+output**
+
 #folders
 shapes**
 # User-specific files
