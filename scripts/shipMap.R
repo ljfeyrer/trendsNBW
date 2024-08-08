@@ -6,9 +6,18 @@
 
 
 ##  Import shipping raster -------
-# layers taken from Halpern et al. 2015, based on 2011
-dsn = here::here("Data/Shipping/shipping.tif")
-gridList = raster(dsn)
+# layers taken from SSHUA
+
+ship_pre = rast("shapes/Shipping/traffic2000")
+
+plot(ship_pre)
+
+
+
+
+
+dsn = here::here("shapes/Shipping/shipping.tif")
+gridList = rast(dsn)
 
 #reproject, crop and save
 writepath = here::here("Results/GRIDS/Effort/PRE/pre_")

@@ -66,9 +66,9 @@ options(scipen = 999)
 
 ```{r import_basemap, include=TRUE, message=FALSE, warning=FALSE, fig.width = 7, fig.height = 5, fig.fullwidth = TRUE}
 source(here::here("scripts/baseMap.r"), local = knitr::knit_global())
-
+source(here::here("scripts/functionsCHI.r"), local = knitr::knit_global())
 #remove any previous results before knitting and rerunning all scripts
-unlink(here::here("Results/GRIDS/scaled/*"))
+unlink(here::here("output/GRIDS/scaled/*"))
 #map base map
 
 include_graphics(gg_Fig2path)
@@ -77,29 +77,32 @@ include_graphics(gg_Fig2path)
 
 ------------------------------------------------------------------------
 
-### 2. Import human activities (threats) data
+### 2. Map threats based on relative intensity of human activities
 
--   Human activities (threats) with available spatial information
-    included Fishing (Entanglement, Depredation), Military Exercise
-    Zones (Military Sonar), Oil and Gas Development (Large Oil spills
-    \>700,000 L) and Vessel Traffic (Vessel Strike).
+-   The spatial distribution of serious threats across the study area
+    was interpreted from available information on the intensity of
+    associated human activities: Entanglement, Depredation (Fishing
+    effort), Military Sonar (Military Exercise Zones), Plastics (Density
+    of large debris and micro plastics), Large Oil spills (Oil and Gas
+    Development) and Vessel strikes (Vessel Traffic).
 -   Whaling has not occurred in the region across the study period.
--   Data is divided into two periods, early (1988-2004) and contemporary
-    (2005-2023)
+-   Data is divided into two periods, historical (1988-2004) and
+    contemporary (2005-2023). Information on the intensity of human
+    activities was standardized to values between 0-1.
 
 #### A. Fishing Effort (Entanglement, Depredation)
 
--   Fishing footprints for the study area was assembled for a
-    combination of fisheries based on publicly available fisheries
-    distribution data for the region.
--   Given overall spatial footprint has not changed, but info on effort
-    prior to 2004 is not widely available for all fisheries, the data
-    used for both periods is the same, but omits Zone 1 of Gully to
-    account for fishing closures that occurred there in 2005.
--   This threat layer includes data on bottom longline, pelagic
-    longline, bottom and midwater trawl and trap fisheries.
+-   Fishing effort was assessed using a combination of publicly
+    available intensity data (time spent in each cell) for the region
+    for three primary gear classes (i) Groundfish Fixed gear, e.g.,
+    bottom longline, (ii) Pelagic longline, and (ii) Groundfish Mobile
+    gear, e.g. trawl fisheries.
+-   Differences in the methods for assessing effort between fisheries
+    and time periods result in some differences in the resolution of
+    available information. All effort data was standardized into
+    percentiles.
 
-```{r Butler Bottom Longline, include = TRUE, fig.fullwidth = TRUE}
+```{r Groundfish - Fixed Gear (bottom longline), include = TRUE, fig.fullwidth = TRUE, message=FALSE, warning=FALSE}
 source(here::here("scripts/fishMap.r"), local = knitr::knit_global())
 
 #Bottom Longline
@@ -109,7 +112,7 @@ m2+m3+ plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ```
 
-```{r Butler Pelagic Longline, include = TRUE, fig.fullwidth = TRUE}
+```{r Pelagic Longline, include = TRUE, fig.fullwidth = TRUE}
 
 #Pelagic Longline
 # Plot map
@@ -118,11 +121,11 @@ m4+m5+ plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ```
 
-```{r Halpern et al. Fishing, include = TRUE, fig.fullwidth = TRUE}
+```{r Grounfish Mobile, include = TRUE, fig.fullwidth = TRUE}
 
 #Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
 # Plot map
-m12 +m13 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
+m6 +m7 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ```
 
@@ -172,11 +175,11 @@ source(here::here("scripts/militaryexMap.r"), local = knitr::knit_global())
 
 #Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
 # Plot map
-m6+m7 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
+m8+m9 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ```
 
-#### C. Oil and Gas Development (Large Oil spills \>700,000 L)
+#### C. Oil and Gas Development (Large Oil spills)
 
 -   Publicly available spatial and temporal data was collated from the
     Canada-Nova Scotia Offshore Petroleum Board (C-NSOPB) websites
@@ -189,43 +192,30 @@ m6+m7 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 -   Activities occurring before and after 2004 were identified based on
     metadata in the shapefile or provided elsewhere on the website.
 
-    ##### i. Exploratory Activities
+    -   Oil & Gas Operations includes wells, pipelines, and platforms
+    -   Some infrastructure has been decommissioned since it was built,
+        however the ongoing risk associated with pollution is assumed to
+        continue over the entire study period.
 
--   Exploratory Licenses have a 9 year term and post 2004 are only data
-    available on exploratory activities
-
-```{r O&G explore, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
+```{r O&G operations, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
 
  source(here::here("scripts/oilngasMap.r"), local = knitr::knit_global())
 
 #Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
 # Plot maps
-m8+ m9 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
-
+m10+ m11 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 ```
 
-##### ii. Operational activities
+#### D. Commercial Vessel Traffic (Vessel Strike)
 
--   Oil & Gas Operations includes wells, pipelines, and platforms
--   Some of this infrastructure has been decommissioned since it was
-    built, however the ongoing risk associated with pollution is assumed
-    to continue over the entire study period.
-
-```{r Operations, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
-#Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
-
-# Plot maps
-m10+ m11 + plot_layout(guides = "collect")
-```
-
-#### D. Vessel Traffic (Vessel Strike)
-
--   From Halpern et al. 2015. Intensity raster of global shipping
-    traffic is the same for both periods
--   As described in Halpern et al. 2015, this layer combines several
-    years of shipping data but are mostly a static description of
-    shipping patterns and intensity during 2011.
--   Shipping is not excluded from Gully MPA
+-   Intensity raster of global shipping traffic for early period based
+    on Scotian Shelf Human Use Atlas
+-   Does not include all shipping data but provides a description of
+    shipping patterns and intensity during 2002. Available data includes
+    only inbound traffic; however, the density pattern of departing
+    vessels is much the same as the inbound traffic pattern.
+-   There is a voluntary vessels avoidance area around the Gully MPA,
+    however there is no regulatory exclusion of this threat.
 
 ```{r Shipping Effort, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
 source(here::here("scripts/shipMap.r"), local = knitr::knit_global())

@@ -35,50 +35,46 @@
 # the government agrees that such exercises do not occur inside the MPA.
 
 #read in polygon data-----
-DND_areas = read_sf(here::here("Data/MilitaryEx/DND_areas.shp"))
+DND_areas = read_sf(here::here("shapes/MilitaryEx/DND_areas.shp"))
 DND_areasUTM = DND_areas%>%st_transform(UTM20)
-
+DND_areasUTM = vect(DND_areasUTM)
 #rasterize by count and set overlapping polygons to value = 1----
-dsn = here::here("Results/GRIDS/Original/")
-DND2Raster =  polyRaster(DND_areasUTM, template, dsn)
+dsn = here::here("output/GRIDS/PRE/")
+DND2Raster =  rasterize(DND_areasUTM, template)
+
 DND2Raster[DND2Raster ==0] <- NA
 DND2Raster[DND2Raster >0] <- 1
 
 #Early Period (1988-2004)------        
-#Make average intensity 12.6% based on estimate of activity across all years----
-preDND = DND2Raster*.126
+#Make average intensity 10% based on estimate of activity across all years----
+preDND = DND2Raster*.25
 
 #write raster file for pre
-writeRaster(preDND, filename = here::here("Results/GRIDS/scaled/preDND"), overwrite = TRUE,format='GTiff')
+writeRaster(preDND, filename = here::here("output/GRIDS/PRE/MFAS/preDND.tif"), overwrite = TRUE, filetype = "GTiff")
 
 #transform raster to stars for plotting
 preDND_df = st_as_stars(preDND)
 
 #plot early period      -----
-m6 = ggplot() + scale_fill_gradientn(
+m8 = ggplot() + scale_fill_gradientn(
   limits = c(0, 1),
   colours = c(NA, "red"),
-  values = scales::rescale(c(0, 0.10, .5)),
+  values = scales::rescale(c(0, 0.25, .5)),
   guide = "colorbar",
   na.value = NA
 ) +
-  geom_sf(
-    data = nbw_habUTM,
-    col = "blue",
-    fill = NA,
-    size = .2
-  ) +
   geom_stars(data = preDND_df,
              na.rm = T,
              downsample = 3) +
   geom_sf(
-    data = nbw_habUTM,
+    data = nbw_ImHab2023_UTM,
     col = "black",
     fill = NA,
     size = .2
-  ) +
-  geom_sf(data = bathyUTM, col = "gray", size = 0.2) +
-  geom_sf(data = landUTM, color = NA, fill = "grey50") +
+  )+
+
+  geom_sf(data= bathy, col = "gray", size = 0.2) +
+  geom_sf(data= landUTM, color = NA, fill = "grey50") +
   # add scale bar
   annotation_scale(
     location = "br",
@@ -87,55 +83,56 @@ m6 = ggplot() + scale_fill_gradientn(
     bar_cols = c("grey40", "white")
   ) +
   # set map limits
-  coord_sf(
-    xlim = c(26000, 1518416),
-    ylim = c(4451888, 5104112),
-    crs =  st_crs(UTM20),
-    expand = FALSE
-  ) +
+  coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE) +
+  theme_bw() +
   # format axes
   ylab("") +
   xlab("") +
   theme(
     plot.margin = margin(.5, .5, .5, .5, "cm"),
     panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank()
-  ) + labs(title = "DND Practise Areas 1988 - 2004") +
-  theme_bw() +
-  guides(fill = guide_colourbar(title = "Estimated annual effort"))+
+    panel.grid.minor = element_blank(),
+    
+  ) +  
+  labs(title = "Military Areas Historical") +
+  guides(fill = guide_colourbar(title = "Estimated effort"))+
   theme(legend.position = "none") 
+
+m8
 
 # Contemporary Period (2005-2019)-------
 # Make average intensity 15% based on estimate of increase in activity in recent years----
-postDND = DND2Raster*.15
+postDND = DND2Raster*.5
 
 #Mask Gully out of contemporary period-----
 postDND <- mask(postDND,Gully_UTM, inverse = T)
 #write raster file for post
-writeRaster(postDND, filename = here("Results/GRIDS/scaled/postDND"), overwrite = TRUE,format='GTiff')
+writeRaster(postDND, filename = "output/GRIDS/POST/MFAS/postDND.tif", overwrite = TRUE,filetype='GTiff')
 
 #transform raster to stars for plotting
 postDND_df = st_as_stars(postDND)
 
 #plot contemporary period-----
-m7 = ggplot() + scale_fill_gradientn(
+m9 = ggplot() + scale_fill_gradientn(
   limits = c(0, 1),
   colours = c(NA, "red"),
-  values = scales::rescale(c(0, 0.10, .5)),
+  values = scales::rescale(c(0, 0.25, .5)),
   guide = "colorbar",
   na.value = NA
 ) +
-  geom_sf(
-    data = nbw_habUTM,
-    col = "black",
-    fill = NA,
-    size = .2
-  ) +
   geom_stars(data = postDND_df,
              na.rm = T,
              downsample = 3) +
-  geom_sf(data = bathyUTM, col = "gray", size = 0.2) +
-  geom_sf(data = landUTM, color = NA, fill = "grey50") +
+ 
+  geom_sf(
+    data = nbw_ImHab2023_UTM,
+    col = "black",
+    fill = NA,
+    size = .2
+  )+
+  
+  geom_sf(data= bathy, col = "gray", size = 0.2) +
+  geom_sf(data= landUTM, color = NA, fill = "grey50") +
   # add scale bar
   annotation_scale(
     location = "br",
@@ -144,21 +141,19 @@ m7 = ggplot() + scale_fill_gradientn(
     bar_cols = c("grey40", "white")
   ) +
   # set map limits
-  coord_sf(
-    xlim = c(26000, 1518416),
-    ylim = c(4451888, 5104112),
-    crs =  st_crs(UTM20),
-    expand = FALSE
-  ) +
+  coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE) +
+  theme_bw() +
   # format axes
   ylab("") +
   xlab("") +
   theme(
     plot.margin = margin(.5, .5, .5, .5, "cm"),
     panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank()
+    panel.grid.minor = element_blank(),
+    
   ) +
-  labs(title = "DND Practise Areas 2005-2019") + theme_bw() +
-  guides(fill = guide_colourbar(title = "Estimated annual effort")) +
-  theme(legend.position = "none")
+  guides(fill = guide_colourbar(title = "Estimated effort"))+
+  theme(legend.position = "none") +
 
+  labs(title = "Military Areas Contemporary") 
+m9

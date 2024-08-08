@@ -3,16 +3,16 @@
 
 pointRaster <- function(file, template, dsn){
   file_p <- st_buffer(file, 1000)
-  r <- fasterize(file_p, template,  fun="sum", background = 0)
+  r <- rasterize(file_p, template,  fun="sum", background = 0)
   r[r ==0] <- NA
-  writeRaster(r, filename = paste(dsn, deparse(substitute(file)), sep = ""), overwrite = TRUE,format='GTiff')
+  writeRaster(r, filename = paste(dsn, "//", deparse(substitute(file)), ".tif", sep = ""), overwrite = TRUE,filetype ='GTiff')
 }
 
 polyRaster <- function(file, template, dsn){
   file_p <- st_buffer( file, 100)
-  r <- fasterize(file_p, template,  fun="count", background = 0)
+  r <- rasterize(file_p, template,  fun="count", background = 0)
   r[r ==0] <- NA
-  writeRaster(r, filename = paste(dsn, deparse(substitute(file)), sep = ""), overwrite = TRUE,format='GTiff')
+  writeRaster(r, filename = paste(dsn, "//", deparse(substitute(file)), ".tif", sep = ""), overwrite = TRUE,filetype ='GTiff')
 }
 
 #create a raster stack from all rasters in a folder----
@@ -30,40 +30,57 @@ stackRaster <- function(dsn){
 #used in fishMap.r
 SumRaster <- function(dsn, writepath, file){
   gridList <- dir(path=dsn,pattern=".tif", all.files = TRUE, full.names  = T)
-  gridList <- lapply(gridList,raster)
-  gridList = brick(gridList)
+  gridList <- rast(gridList)
   gridsum <- sum(gridList, na.rm = T)
-  gridsum=  resample(gridsum,template, method = 'ngb')
   gridsum[gridsum ==0] <- NA
-  writeRaster(gridsum, filename = paste0(writepath, file, sep = ""), overwrite = TRUE,format='GTiff')
+  writeRaster(gridsum, filename = paste(writepath,"//", file, sep = ""), overwrite = TRUE, filetype  ='GTiff')
   }
 
 #combine all rasters in a folder and write new grid based on footprint-------
 #used in oilngas.r
 footprntRaster <- function(dsn, writepath){
   gridList <- dir(path=dsn,pattern=".tif", all.files = TRUE, full.names  = T)
-  gridList <- lapply(gridList,raster)
-  gridList = brick(gridList)
+  gridList <- rast(gridList)
   gridsum <- sum(gridList, na.rm = T)
-  gridsum=  resample(gridsum,template, method = 'ngb')
   gridsum[gridsum ==0] <- NA
   gridsum[gridsum >=1] <- 1 
   
-  writeRaster(gridsum, filename = writepath, overwrite = TRUE,format='GTiff')
+  writeRaster(gridsum, filename = writepath, overwrite = TRUE, filetype  ='GTiff')
 }
 
 # Halpern et al grid data--------
 halpernRaster <- function(grid1, path, NBW, writepath){
+  # grid1 =rast(list.files(dsn, full.names = T))
   mol = CRS("+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs")
   NBW2 = NBW%>%st_transform(mol)
-  file  = tools::file_path_sans_ext( basename(path))
+  # file  = tools::file_path_sans_ext( basename(writepath))
   #make data smaller
   grid1 <- crop(grid1,NBW2)
-  grid1<- mask(grid1,NBW2)
-  grid1 <- projectRaster(grid1, crs=UTM20, res = 1000, method = 'ngb')
+  # grid1<- mask(grid1,NBW2)
+  grid1 <- terra::project(grid1, UTM20, res = 1000, method = 'near')
   
-  #need to crop so same extent
-  grid1 =  resample(grid1,template, method = 'ngb')
-  writeRaster(grid1, filename = paste(writepath,names(grid1), sep = ""), bylayer= T, overwrite = TRUE,format='GTiff')
+  writeRaster(grid1, filename = paste(writepath,"//", names(grid1), ".tif", sep = ""), overwrite = TRUE, filetype  ='GTiff')
 }
 
+
+# Quantile effort into deciles
+      quantFishEffort <- function(Fish = bot_long_fish, writepath){
+      # Calculate quantile breaks (excluding NA values)
+      # get all data values
+      Fish_values <- values(Fish)
+      probs=seq(0, 1, 0.1)
+      quantiles <- quantile(Fish_values, probs = probs, na.rm = TRUE)
+      
+      # Cut the values into quantile classes
+      fish_binned_values <- .bincode(Fish_values, breaks = quantiles, include.lowest = TRUE)
+      
+      # summary(Pel_quant_rast)
+      
+      # Create a new raster with these binned values
+      Pel_quant_rast <- Fish
+      values(Pel_quant_rast) <- (fish_binned_values-11)*-1
+      
+      # plot(Pel_quant_rast)
+      writeRaster(Pel_quant_rast*10, filename = paste(writepath,"//", names(Fish), "_Quant.tif", sep = ""), overwrite = TRUE, filetype  ='GTiff')
+      
+}
