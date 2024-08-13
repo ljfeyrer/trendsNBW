@@ -104,10 +104,10 @@ sf_use_s2(FALSE)
             st_make_valid()%>% st_intersection(Bound_boxB)%>%
             st_transform(UTM20) %>%mutate(NAME = "Coral Closure")
           
-          #NARW critical habitat areas
-          NARW_CH_UTM <- sf::st_read("~/CODE/shapefiles/SAR_CH/NARW_CH/NARW_CH.shp")%>%st_transform(4326)%>%
-            st_intersection(Bound_boxB)%>%st_union()%>%
-            st_transform(UTM20)
+          # #NARW critical habitat areas
+          # NARW_CH_UTM <- sf::st_read("~/CODE/shapefiles/SAR_CH/NARW_CH/NARW_CH.shp")%>%st_transform(4326)%>%
+          #   st_intersection(Bound_boxB)%>%st_union()%>%
+          #   st_transform(UTM20)
           # plot(st_geometry(NARW_CH_UTM))
           
           #NBW Habitat Areas ---------
@@ -132,19 +132,19 @@ sf_use_s2(FALSE)
           BW_detects = read_sf("~/CODE/TowedArray/Shapes/BW.PAM_sf.shp")%>%
             filter(species == "Ha")%>%st_transform(UTM20)%>%st_intersection(SShelf)
           
-          plot(st_geometry(BW_detects))
+          # plot(st_geometry(BW_detects))
           
           #import Ha sightings
           sightHa = read_sf("~/CODE/shapefiles/Ha_locations/Ha_locations_2023.shp")%>%
            st_transform(UTM20)%>%st_intersection(SShelf)
-          plot(st_geometry(sightHa))
+          # plot(st_geometry(sightHa))
           
      
 #create one layer for PAs
         MCAs =   rbind(Gully_UTM%>%select(NAME), NBW_CH_UTM%>%select(NAME)
                        ) %>%filter(NAME == "Zone 1" | NAME == "Haldimand Canyon"| NAME == "Shortland Canyon"|
                                      NAME == "Gully MPA (Marine Protected Area), outer boundary" )
-        plot(st_geometry(MCAs))
+        # plot(st_geometry(MCAs))
        #not USED MCAS:  gbPA_UTM%>%select(NAME),OECMS_UTM%>%select(NAME), ALL_MPAS_UTM%>%select(NAME), Coral_UTM%>%select(NAME)
         # %>%st_intersection(SShelf)
         
@@ -221,7 +221,7 @@ sf_use_s2(FALSE)
                    color = "black", size = 3)
 
         
-        print(m)
+        # print(m)
         
         #save map
 #  
@@ -230,5 +230,5 @@ ggsave(gg_Fig2path, m,  dpi = 300)
 
 
 # #a template raster for data processing
-template <- rast(vect(Bound_boxBUTM), res = 1000)
+template <- rast(vect(SShelf), res = 1000)
 template_s = st_as_stars(template, as_points = FALSE, merge = FALSE)

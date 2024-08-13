@@ -43,8 +43,8 @@ footprntRaster <- function(dsn, writepath){
   gridList <- rast(gridList)
   gridsum <- sum(gridList, na.rm = T)
   gridsum[gridsum ==0] <- NA
-  gridsum[gridsum >=1] <- 1 
-  
+  gridsum[gridsum >=1] <- 100 
+
   writeRaster(gridsum, filename = writepath, overwrite = TRUE, filetype  ='GTiff')
 }
 
@@ -64,23 +64,48 @@ halpernRaster <- function(grid1, path, NBW, writepath){
 
 
 # Quantile effort into deciles
-      quantFishEffort <- function(Fish = bot_long_fish, writepath){
+      quantEffort <- function(effort, writepath){
       # Calculate quantile breaks (excluding NA values)
       # get all data values
-      Fish_values <- values(Fish)
+        effort_values <- values(effort)
+        # set 0 to NA
+        effort_values[effort_values == 0] <-NA
       probs=seq(0, 1, 0.1)
-      quantiles <- quantile(Fish_values, probs = probs, na.rm = TRUE)
+      quantiles <- quantile(effort_values, probs = probs, na.rm = TRUE)
       
       # Cut the values into quantile classes
-      fish_binned_values <- .bincode(Fish_values, breaks = quantiles, include.lowest = TRUE)
+      effort_binned_values <- .bincode(effort_values, breaks = quantiles, include.lowest = TRUE)
       
       # summary(Pel_quant_rast)
       
       # Create a new raster with these binned values
-      Pel_quant_rast <- Fish
-      values(Pel_quant_rast) <- (fish_binned_values-11)*-1
+      Eff_quant_rast <- effort
+      values(Eff_quant_rast) <- (effort_binned_values)
       
       # plot(Pel_quant_rast)
-      writeRaster(Pel_quant_rast*10, filename = paste(writepath,"//", names(Fish), "_Quant.tif", sep = ""), overwrite = TRUE, filetype  ='GTiff')
+      writeRaster(Eff_quant_rast*10, filename = paste(writepath,"//", names(effort), "Quant.tif", sep = ""), overwrite = TRUE, filetype  ='GTiff')
       
 }
+
+      quantEffort_inv <- function(effort, writepath){
+        # Calculate quantile breaks (excluding NA values)
+        # effort = bot_long_fish
+        # get all data values
+        effort_values <- values(effort)
+        x = unique(effort_values)
+        probs=seq(0, 1, 0.1)
+        quantiles = quantile(x, probs = probs, na.rm = TRUE)
+        # Cut the values into quantile classes
+        effort_binned_values <- .bincode(effort_values, breaks = quantiles)
+        
+        # summary(Pel_quant_rast)
+        
+        # Create a new raster with these binned values
+        Eff_quant_rast <- effort
+        values(Eff_quant_rast) <- (effort_binned_values-11)*-1
+        
+        # plot(Pel_quant_rast)
+        writeRaster(Eff_quant_rast*10, filename = paste(writepath,"//", names(effort), "_Quant.tif", sep = ""), overwrite = TRUE, filetype  ='GTiff')
+        
+      }
+      

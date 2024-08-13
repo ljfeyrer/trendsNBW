@@ -64,11 +64,11 @@ options(scipen = 999)
         Species at Risk
         <https://open.canada.ca/data/en/dataset/db177a8c-5d7d-49eb-8290-31e6a45d786c>
 
-```{r import_basemap, include=TRUE, message=FALSE, warning=FALSE, fig.width = 7, fig.height = 5, fig.fullwidth = TRUE}
+```{r import_basemap, echo = FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
 source(here::here("scripts/baseMap.r"), local = knitr::knit_global())
 source(here::here("scripts/functionsCHI.r"), local = knitr::knit_global())
 #remove any previous results before knitting and rerunning all scripts
-unlink(here::here("output/GRIDS/scaled/*"))
+unlink(here::here("output/GRIDS/*"))
 #map base map
 
 include_graphics(gg_Fig2path)
@@ -146,28 +146,23 @@ m6 +m7 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
     entire period, we interpreted them to represent threat potential for
     military mid-frequency active sonar (MMFAS). Although noise impacts
     can extend outside these areas, the most acute threat would occur
-    inside the exercise areas. According to the Canadian Coast Guard
-    Navigational Warnings (NAVWARNs), previously known as Notices to
-    Shipping (NOTSHIPS), there were 44 notices of military exercises in
-    areas overlapping with beaked whale habitat, on 54 days in 2019 (the
-    first year notices were made available online), lasting between 1-5
-    days each (Government of Canada, 2021). However, this included 8
-    (non-consecutive) days of the biannual international CUTLASS FURY
-    exercises. This biannual event began in 2016 and has been described
-    as the “largest international military exercise in Canadian waters”
-    (The Canadian Press, 2016). Excluding CUTLASS FURY 2019, we used the
-    proportion of days per year with notifications to mariners (46 days
-    = 12.6%) as a baseline for effort across the area in any given year.
-    Although there is little information on the extent of military
-    activity in the early period, there were two large international
-    exercises as part of the public record in 2016 and 2019 (i.e.,
-    CUTLASS FURY). To account for the impact of the international
-    exercises, we have increased the % effort to 15% per year in the
-    period after 2004. In addition, we removed the MPA from this layer
-    in the contemporary period, as the MPA management plan (Fisheries
-    and Oceans Canada, 2017) indicates that although the Gully MPA
-    cannot legally exclude military activities, in practise the
-    government agrees that such exercises do not occur inside the MPA.
+    inside the exercise areas. There is little information on the extent
+    of military activity in the early period, however the Canadian Coast
+    Guard Navigational Warnings (NAVWARNs), previously known as Notices
+    to Shipping (NOTSHIPS), indicate there were 44 notices of military
+    exercises in areas overlapping with beaked whale habitat, on 54 days
+    in 2019 (the first year notices were made available online), lasting
+    between 1-5 days each (Government of Canada, 2021). However, this
+    included 8 (non-consecutive) days of the biannual international
+    CUTLASS FURY exercises. This biannual event began in 2016 and has
+    been described as the “largest international military exercise in
+    Canadian waters” (The Canadian Press, 2016). Excluding CUTLASS FURY
+    2019, there were 46 days per year with notifications to mariners
+    (12.6% year). We removed the MPA from this layer in the contemporary
+    period, as the MPA management plan (Fisheries and Oceans Canada,
+    2017) indicates that although the Gully MPA cannot legally exclude
+    military activities, in practise the government agrees that such
+    exercises do not occur inside the MPA.
 
 ```{r DND, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE, fig.fullwidth = TRUE}
 
@@ -209,103 +204,91 @@ m10+ m11 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 #### D. Commercial Vessel Traffic (Vessel Strike)
 
 -   Intensity raster of global shipping traffic for early period based
-    on Scotian Shelf Human Use Atlas
--   Does not include all shipping data but provides a description of
+    on Scotian Shelf Human Use Atlas which provides a description of annual
     shipping patterns and intensity during 2002. Available data includes
     only inbound traffic; however, the density pattern of departing
     vessels is much the same as the inbound traffic pattern.
--   There is a voluntary vessels avoidance area around the Gully MPA,
+-   Contemporary shipping data is based on 2019 daily intensity shipping (OpenGov.ca), reflecting pre-covid shipping patterns. Increased shipping around Sable Island reflects the decommissioning of Oil and Gas infrastructure between 2017-2019. https://www.cnsopb.ns.ca/offshore-activity/current-activity/sable-offshore
+-   There is a voluntary vessel avoidance area around the Gully MPA,
     however there is no regulatory exclusion of this threat.
 
-```{r Shipping Effort, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
+```{r Shipping Effort, echo= FALSE, warning=FALSE, message=FALSE, fig.fullwidth=T, message=T, warning=T}
 source(here::here("scripts/shipMap.r"), local = knitr::knit_global())
 
-m14
+m14 + m15 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ```
 
 ### 3. Assessing cumulative impacts from individual threats
 
--   Scale stressor intensity data so values range between 0-1 for layers
-    with effort information: Oil & Gas Explorations, Fishing effort,
-    Shipping, SST anomalies
--   Read in Pre/Post layers, Log10[x+1] transform and then normalize
-    effort grids by max value across both periods
--   Presence /absence of stressor footprint data values should be either
-    0 or 1
--   Stressor layers (effort or footprint) for each of the two periods
-    are multiplied by the NBW vulnerability score
--   NBW Vulnerability score assigned based on sensitivity, temporal
-    frequency and extent of stressor (See Impact Score Rationale below,
-    Table 2 in Feyrer et al. 2022)
--   Finally the values of stressors in each period are summed to assess
-    Cumulative impact
+-   Scale intensity data so values range between 0-1 for layers with
+    effort information: Fishing effort, Shipping,
+-   Presence /absence footprint data is either 0 or 1: Oil & Gas Explorations, Military Activities
+-   The relative intensity of threats in each period are summed and rescaled between 0-100% to
+    visualize areas of potentially higher cumulative impact
 
 ```{r Calc CHI, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE }
-source(here::here("scripts/rescaleStressor.r"), local = knitr::knit_global())
 source(here::here("scripts/calcCHI.r"), local = knitr::knit_global(), )
 
 # plot by threat
-include_graphics(fig3threatspath)
-ImpactScore1 = ImpactScore[c(1,3,2, 4:6), 2:6]
-names(ImpactScore1) <- gsub('[.].+', '', names(ImpactScore1))
+plotThreats1 + plotThreats2 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
-#Table 1
- #format table
-  kbl(ImpactScore1, booktabs = TRUE, caption = "Impact Score Rationale Table" ) %>%kable_styling(latex_options="scale_down")%>% row_spec (0, bold = T)%>%landscape( margin = NULL)
 
-  
+
   #plot CHI PRE/ POST
-include_graphics(fig4CHIpath)
+
+CHI_map
 ```
 
 ### 4. Calculating difference in CHI between periods
 
 -   The difference in Cumulative impact between periods highlights
-    measures the cell-by-cell difference between CHI
--   Can be used to understand areas and intensity of differences in
+    measures the cell-by-cell difference between CHI and is used to understand areas and intensity of differences in
     threats to NBW over time
--   Absolute diference is Contemporary period - Early Period
+-   Absolute difference is Contemporary period - Early Period
 
 ##### RMS Error
 
 -   Square Root(sum(e\^2)/n)
 -   About 2/3 of all the cells will differ by less than the rmse.
--   About 95% of all the cells will differ by less than twice the rmse.
 
 ```{r Calc CHI difference, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
 
-# Plot Absolute Difference between periods
-# Plot RMSE Difference & Plot RMSE Difference >2
+# Plot Absolute and RMSE Difference between periods
 
-include_graphics(fig5CHIpath)
+CHI_dif
 
 ```
 
 ### 5. Summary Stats on CHI
 
-```{r Summary Stats, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
+-   Differences in cumulative relative threat intensity
+
+```{r Summary Stats, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
 source(here::here("scripts/statsCHI.r"), local = knitr::knit_global())
 
-#tables-----
-  #format threat contribution table
-threats_tbl1 = threats_tbl[, c(1:4, 6:8)]
-names(threats_tbl1) <- gsub('[.].+', '', names(threats_tbl1))
-threats_tbl1[,1] <- gsub('[.]', ' ', threats_tbl1[,1])
-threats_tbl1[,1] <- gsub('2', '', threats_tbl1[,1])
+ # Display table in RMarkdown
+          kable(DifStats, caption = "Difference in Threat Intensity Over Time")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+                full_width = FALSE, position = "center")
 
-  kable(threats_tbl1, align=rep('l', 6), booktabs = TRUE, caption = "Summary of Impact by Threat",  digits = rep(2, 6))%>% add_header_above(c(" " = 1, "Early Period \n1988-2004" = 3, "Contemporary Period \n2005-2019" = 3)) %>%kable_styling(latex_options = "HOLD_position")%>% row_spec (0, bold = T) 
-  
-  #format CHI table
+          
+          # Display table in RMarkdown
+      kable(DifStats_pre, caption = "Early Period Threat Intensity Summary")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+                full_width = FALSE, position = "center")
 
-  summarytc1 = summarytc[, c(1, 4, 9,8, 6:7)]
-  names(summarytc1) <- c("Period", "Median", "Mean","sd", "Max", "Sum")
-summarytc1[,1] = c("Early 1988- 2004", "Contemporary 2005-2019")
-  summarytc1%>%kable(align=rep('l', 7), booktabs = TRUE, caption = "Cumulative Impact Scores by Period", digits = rep(3, 6)) %>%kable_styling(latex_options = "HOLD_position")%>% row_spec (0, bold = T)
-  
-  round(RMSError, digits = 3)
-  
-#format dif table
-  BigDif%>%kable(align=rep('c', 3), booktabs = TRUE, caption = "Diference in CHI increase and decrease 1988-2019", digits = rep(3, 6)) %>%kable_styling(latex_options = "HOLD_position")%>% row_spec (0, bold = T)
+      
+            # Display table in RMarkdown
+      kable(DifStats_post, caption = "Contemporary Period Threat Intensity Summary")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+                full_width = FALSE, position = "center")
+
+      
+      # Display table in RMarkdown
+kable(dif_tble, caption = "Area of Important Habitat with Increased or Decreased Threat Intensity (Km<sup>2</sup>)") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+                full_width = FALSE, position = "center")
+
 
 ```

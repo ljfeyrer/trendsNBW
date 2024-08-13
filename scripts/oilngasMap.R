@@ -60,16 +60,16 @@
                 panel.grid.minor = element_blank(),
                 
               ) +
-              guides(fill = guide_colourbar(title = "Estimated effort"))+
+              guides(fill = guide_colourbar(title = "Intensity"))+
               theme(legend.position = "none") 
 
     #rasterize Pre- 2004 
-    dsn = here::here("output/GRIDS/PRE/Spills/")
+    dsn = here::here("output/GRIDS/PRE/Spills/OnG/")
     preWells = pointRaster(preWells, template, dsn)
    
     
     #Rasterize POST 2004 - 
-    dsn2 = here::here("output/GRIDS/POST/Spills/")
+    dsn2 = here::here("output/GRIDS/POST/Spills/OnG/")
     postWells = pointRaster(postWells, template, dsn2)
     
 
@@ -177,25 +177,42 @@ pointRaster(postPipes, template, dsn2)
 
 #Import and combine all footprints of operational activities -------
 
-#Early Period
-#combine all operational rasters for period pre 2004  
-writepath = here("output/GRIDS/PRE/pre_Oil.tif")
-dsn = dsn
-footprntRaster(dsn, writepath)
-
-#Contemporary Period
-#combine all operational rasters for period 2005-2019 into one raster  
-writepath = here("output/GRIDS/POST/post_opOnG.tif")
-dsn = dsn2
-footprntRaster(dsn, writepath)
+          #Early Period
+          #combine all operational rasters for period pre 2004  
+          pre = here("output/GRIDS/PRE/Spills/pre_oil.tif")
+          dsn = dsn
+          footprntRaster(dsn, pre)
+          pre_oil = rast(pre)
+          names(pre_oil) = "pre_oil"
+          
+          #Contemporary Period
+          #combine all operational rasters for contemporary period  
+          post = here("output/GRIDS/POST/Spills/post_oil.tif")
+          dsn = dsn2
+          footprntRaster(dsn, post)
+          post_oil = rast(post)
+          names(post_oil) = "post_oil"
+          
+    #write raster files to CHI-----
+          CHI_path = "output/GRIDS/CHI//"
+          
+          #pre
+          writeRaster(pre_oil, filename = paste(CHI_path, "pre_oil.tif", sep = ""), overwrite = TRUE)
+                   
+          #post
+          writeRaster(post_oil, filename = paste(CHI_path, "post_oil.tif", sep = ""), overwrite = TRUE)
+          
 
 #plot pre 2004 operational effort----------
 #make stars object
-Op_pre_df = read_stars(here("output/GRIDS/PRE/pre_Oil.tif"))
+Op_pre_df = read_stars(here("output/GRIDS/PRE/Spills/pre_Oil.tif"))
 
 m10 = ggplot() +  
-  scale_fill_viridis_c(
-       na.value=NA)+
+  scale_fill_continuous(
+    type = "viridis", option = "A",
+    direction = 1,
+    na.value = "transparent"
+  ) +
   geom_sf(data = nbw_ImHab2023_UTM, col = "black",fill = NA, size = .2)+
   geom_stars(data = Op_pre_df, na.rm = T, downsample = 0)+
   geom_sf(data = bathy, col = "gray", size = 0.2) +
@@ -216,17 +233,22 @@ m10 = ggplot() +
     panel.grid.minor = element_blank()
   ) + labs(title = "Oil & Gas - Historical") + 
 
-  guides(fill = guide_colourbar(title = "Operations"))+
+  guides(fill = guide_colourbar(title = "Intensity"))+
   theme_bw() 
 m10
 
+
+
 #plot post 2004 operational effort----------
 #make stars object
-Op_post_df = read_stars(here("output/GRIDS/POST/post_opOnG.tif"))
+Op_post_df = read_stars(here("output/GRIDS/POST/Spills/post_oil.tif"))
 
 m11 = ggplot() +  
-  scale_fill_viridis_c(
-    na.value=NA)+
+  scale_fill_continuous(
+    type = "viridis", option = "A",
+    direction = 1,
+    na.value = "transparent"
+  ) +
   geom_sf(data = nbw_ImHab2023_UTM, col = "black",fill = NA, size = .2)+
   geom_stars(data = Op_post_df, na.rm = T, downsample = 0)+
   geom_sf(data = bathy, col = "gray", size = 0.2) +
@@ -247,7 +269,7 @@ m11 = ggplot() +
     panel.grid.minor = element_blank()
   ) + labs(title = "Oil & Gas - Contemporary") +
 
-  guides(fill = guide_colourbar(title = "Operations"))+
+  guides(fill = guide_colourbar(title = "Intensity"))+
   theme_bw() 
 m11
 

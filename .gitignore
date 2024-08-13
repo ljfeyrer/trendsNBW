@@ -6,6 +6,8 @@
 .RData
 .RDataTmp
 
+*.html
+
 output**
 CHI_Trends_files**
 
