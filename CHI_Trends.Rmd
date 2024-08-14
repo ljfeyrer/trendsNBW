@@ -1,7 +1,7 @@
 ---
 title: "Cumulative Human Impact (CHI) scripts Methods"
 author: "Feyrer et al. 2024"
-date: "July 2024"
+date: "August 2024"
 output: html_document
 editor_options: 
   markdown: 
@@ -143,26 +143,23 @@ m6 +m7 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
     (<https://open.canada.ca/data/en/dataset/73111c78-298b-4be9-97f1-7aaa73cab477>).
 
 -   With no effort data on military exercises in these areas across the
-    entire period, we interpreted them to represent threat potential for
-    military mid-frequency active sonar (MMFAS). Although noise impacts
-    can extend outside these areas, the most acute threat would occur
-    inside the exercise areas. There is little information on the extent
-    of military activity in the early period, however the Canadian Coast
-    Guard Navigational Warnings (NAVWARNs), previously known as Notices
-    to Shipping (NOTSHIPS), indicate there were 44 notices of military
-    exercises in areas overlapping with beaked whale habitat, on 54 days
-    in 2019 (the first year notices were made available online), lasting
-    between 1-5 days each (Government of Canada, 2021). However, this
-    included 8 (non-consecutive) days of the biannual international
-    CUTLASS FURY exercises. This biannual event began in 2016 and has
-    been described as the “largest international military exercise in
-    Canadian waters” (The Canadian Press, 2016). Excluding CUTLASS FURY
-    2019, there were 46 days per year with notifications to mariners
-    (12.6% year). We removed the MPA from this layer in the contemporary
-    period, as the MPA management plan (Fisheries and Oceans Canada,
-    2017) indicates that although the Gully MPA cannot legally exclude
-    military activities, in practise the government agrees that such
-    exercises do not occur inside the MPA.
+entire period, we interpreted them to represent threat potential for military
+mid-frequency active sonar (MMFAS). Although noise impacts can extend outside
+these areas, the most acute threat would occur inside the exercise areas. There
+is little information on the extent of military activity in the early period,
+however the Canadian Coast Guard Navigational Warnings (NAVWARNs), previously
+known as Notices to Shipping (NOTSHIPS), indicate there were 44 notices of
+military exercises in areas overlapping with beaked whale habitat, on 54 days in
+2019 (the first year notices were made available online), lasting between 1-5
+days each (Government of Canada, 2021). However, this included 8
+(non-consecutive) days of the biannual international CUTLASS FURY exercises.
+This biannual event began in 2016 and has been described as the “largest
+international military exercise in Canadian waters” (The Canadian Press, 2016).
+Excluding CUTLASS FURY 2019, there were 46 days per year with notifications to
+mariners (12.6% year). We removed the MPA from this layer in the contemporary
+period, as the MPA management plan (Fisheries and Oceans Canada, 2017) indicates
+that although the Gully MPA cannot legally exclude military activities, in
+practise the government agrees that such exercises do not occur inside the MPA.
 
 ```{r DND, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE, fig.fullwidth = TRUE}
 
@@ -253,6 +250,8 @@ CHI_map
 -   About 2/3 of all the cells will differ by less than the rmse.
 
 ```{r Calc CHI difference, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
+
+print(paste("RMSE = " , round(RMSError, 2), sep = ""))
 
 # Plot Absolute and RMSE Difference between periods
 
