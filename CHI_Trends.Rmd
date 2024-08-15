@@ -216,7 +216,7 @@ m14 + m15 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ```
 
-### 3. Assessing cumulative impacts from individual threats
+### 3. Assessing intensity of individual threats
 
 -   Scale intensity data so values range between 0-1 for layers with
     effort information: Fishing effort, Shipping,
