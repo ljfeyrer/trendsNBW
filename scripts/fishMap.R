@@ -21,13 +21,13 @@ library(classInt)
                 bot_long_fish =  terra::project(bot_long_fish, template, method = 'near')
                 bot_long_fish <- crop(bot_long_fish, SShelf)
                 
-                # bot_long_fish <- terra::mask(bot_long_fish, nbw_ImHab2023_UTM)
                 names(bot_long_fish) <- "preFixedFish"
+                
                 # plot(bot_long_fish)
                 
                 # Calculate quantile breaks (excluding NA values) 
                 fishdir = file.path("output", "GRIDS", "PRE" ,"Fish")
-                quantEffort_inv(bot_long_fish, writepath = fishdir)
+                quantEffort(bot_long_fish, writepath = fishdir)
                 bottomll_Quant = rast(paste(fishdir, "preFixedFish_Quant.tif", sep = "//"))
                 # plot(bottomll_Quant)
           
@@ -86,23 +86,19 @@ library(classInt)
                 ###crop and mask to same extent as habitat area
                 bot_long_fish_POST =  terra::project(bot_long_fish_POST, template, method = 'near')
                 bot_long_fish_POST <- crop(bot_long_fish_POST, SShelf)
+                names(bot_long_fish_POST) <- "postFixedFish"
                 
-
-                # plot(bot_long_fish_POST)
+#effort classes are inversed
+                # Calculate quantile breaks (excluding NA values) 
+                fishdir = file.path("output", "GRIDS", "POST" ,"Fish")
+                quantEffort_inv(bot_long_fish_POST, writepath = fishdir)
+                bottomll_Quant = rast(paste(fishdir, "postFixedFish_Quant.tif", sep = "//"))
+                # plot(bottomll_Quant)
                 
-                #### write raster----
-                      fishdir = file.path("output", "GRIDS", "POST" ,"Fish")
-                      dir.create(fishdir, recursive = TRUE)
-
-                writeRaster(
-                  bot_long_fish_POST,
-                  filename = paste0(fishdir,  "/postGFFixed_fish.tif"),
-                  overwrite = TRUE)
-          
                   ##### Plot Map m3-------
                 
                 #transform raster to stars for plotting
-                bot_long_fish_df = st_as_stars(bot_long_fish_POST)
+                bot_long_fish_df = st_as_stars(bottomll_Quant)
                 
                 
                 title = "Bottom Longline Contemporary"
@@ -111,7 +107,7 @@ library(classInt)
                                na.rm = T) +
                     scale_fill_continuous(
                       type = "viridis", option = "A",
-                      direction = 1,
+                      direction = -1,
                      na.value = "transparent"
                     ) +
                     geom_sf(
@@ -169,7 +165,7 @@ library(classInt)
            names(Pel_long_fish2) <-"prePelagicFish"
       # plot(Pel_long_fish2)
       # Calculate quantile breaks (excluding NA values)
-      quantEffort_inv(Pel_long_fish2, writepath = "shapes/Fishing_Effort/PRE/")
+      quantEffort(Pel_long_fish2, writepath = "shapes/Fishing_Effort/PRE/")
            Pel_quant_rast = rast( "shapes/Fishing_Effort/PRE/prePelagicFish_Quant.tif")
            # plot(Pel_quant_rast)
       
@@ -182,7 +178,7 @@ library(classInt)
       m4 = ggplot() +
         scale_fill_continuous(
           type = "viridis", option = "A",
-          direction = 1,
+          direction = -1,
           na.value = "transparent"
         ) +
         geom_stars(data= Pel_long_fish_df,
@@ -229,6 +225,15 @@ library(classInt)
       Pel_fish_POST <- crop(Pel_fish_POST, SShelf)
       # plot(Pel_fish_POST)
       
+      names(Pel_fish_POST) <- "postPelFish"
+      
+      #effort classes are inversed
+      # Calculate quantile breaks (excluding NA values) 
+      fishdir = file.path("output", "GRIDS", "POST" ,"Fish")
+      quantEffort_inv(Pel_fish_POST, writepath = fishdir)
+      Pel_fish_POST_Quant = rast(paste(fishdir, "postPelFish_Quant.tif", sep = "//"))
+      # plot(Pel_fish_POST_Quant)
+      
             #### write raster----
             fishdir = file.path("output", "GRIDS", "POST" ,"Fish")
       
@@ -243,12 +248,12 @@ library(classInt)
             
             ##### Plot map m5-----
             #transform raster to stars for plotting
-            Pel_long_fish_df = st_as_stars(Pel_fish_POST)
+            Pel_long_fish_df = st_as_stars(Pel_fish_POST_Quant)
             
             m5 = ggplot() +
               scale_fill_continuous(
                 type = "viridis", option = "A",
-                direction = 1,
+                direction = -1,
                
                 na.value = NA
               ) +
@@ -310,7 +315,7 @@ library(classInt)
 
             # Calculate quantile breaks (excluding NA values)
             fishdir = file.path("output", "GRIDS", "PRE" ,"Fish")
-            quantEffort_inv(mobile_gf_pre, writepath = fishdir)
+            quantEffort(mobile_gf_pre, writepath = fishdir)
             TrawlCatch_Quant = rast(paste(fishdir, "preMobileGF_Quant.tif", sep = "/"))
             # plot(TrawlCatch_Quant)
             
@@ -329,7 +334,7 @@ library(classInt)
             m6 = ggplot() +
               scale_fill_continuous(
                 type = "viridis", option = "A",
-                direction = 1,
+                direction = -1,
                                 na.value = NA
               ) +
               geom_stars(data= TrawlCatch_Quant_df,
@@ -371,28 +376,24 @@ library(classInt)
             #write and transform to UTM
             GFmobile_POST <-terra::project(GFmobile_POST, template, method = 'near')
             GFmobile_POST <- crop(GFmobile_POST, SShelf)
+            names(GFmobile_POST) <- "postGFmobileFish"
             
-            #### write raster----
+            #effort classes are inversed
+            # Calculate quantile breaks (excluding NA values) 
             fishdir = file.path("output", "GRIDS", "POST" ,"Fish")
+            quantEffort_inv(GFmobile_POST, writepath = fishdir)
+            GFmobile_POST_Quant = rast(paste(fishdir, "postGFmobileFish_Quant.tif", sep = "//"))
+            # plot(GFmobile_POST_Quant)
             
-            # plot(GFmobile_POST)
-            
-            
-            writeRaster(
-              GFmobile_POST,
-              filename = paste0(fishdir, "/postGFmobile_fish.tif"),
-              overwrite = TRUE
-              
-            )
-            
+          
             ##### Plot map m7-----
             #transform raster to stars for plotting
-            GFmobile_POST_df = st_as_stars(GFmobile_POST)
+            GFmobile_POST_df = st_as_stars(GFmobile_POST_Quant)
             
             m7 = ggplot() +
               scale_fill_continuous(
                 type = "viridis", option = "A",
-                direction = 1,
+                direction = -1,
                 
                 na.value = NA
               ) +
@@ -433,7 +434,7 @@ library(classInt)
             m7          
             
             
-#iv.  #combine PRE fishing effort layers----
+#iv.  COMBINE PRE fishing effort layers----
             path = here("output/GRIDS/PRE/Fish/")
             
             filesfish <- list.files(path=path, full.names  = T)
@@ -460,19 +461,12 @@ library(classInt)
             postFish = postFish/3
             # plot(postFish)
             
-            #mask Gully Z1 from post 2004 fish effort
-            postFish <- mask(postFish,GullyZ1, inverse = T)
+            #mask Gully Z1 from post 2004 fish effort----
+            postFish <- mask(postFish,GullyZ1, inverse = T, updatevalue =0)
+            
             # plot(postFish)
             
             # write combined layer for calculating CHI----
             path = here("output/GRIDS/CHI//")
             writeRaster(postFish, filename = paste(path, names(postFish), ".tif", sep = ""), filetype ='GTiff', overwrite = T)
-            
-            # # calc max for both periods - doesnt really make sense given pre/post both are relative scales
-            # 
-            # max= max(postFish)
-            # rescale between 0-1 using max values across both periods
-            # z <- (filesfish - minValue(filesfish)) / (maxLog- minValue(filesfish))
-            # z[z ==0] <- NA
-            # writerast(z, filename = file.path(path, names(z)), bylayer=TRUE,format='GTiff', overwrite = T)
             

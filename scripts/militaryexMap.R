@@ -39,8 +39,11 @@ DND_areasUTM = vect(DND_areasUTM)
 dsn = here::here("output/GRIDS/PRE/")
 DND2Raster =  rasterize(DND_areasUTM, template)
 DND2Raster = crop(DND2Raster, SShelf)
-DND2Raster[DND2Raster ==0] <- NA
+# DND2Raster[DND2Raster == 0] <- NA
 DND2Raster[DND2Raster >0] <- 100
+# DND2Raster[is.na(DND2Raster)] <- 0
+
+# plot(DND2Raster)
 
 #Early Period (1988-2004)------        
 
@@ -54,7 +57,7 @@ preDND_df = st_as_stars(preDND)
 m8 = ggplot() + 
   scale_fill_continuous(
   type = "viridis", option = "A",
-  direction = 1,
+  direction = -1,
   na.value = "transparent"
 ) +
   
@@ -98,7 +101,13 @@ m8
 # Contemporary Period (2005-2019)-------
 
 #Mask Gully out of contemporary period-----
-postDND <- mask(DND2Raster,Gully_UTM, inverse = T)
+postDND <- mask(DND2Raster,Gully_UTM, inverse = T, updatevalue =99 )
+# plot(postDND)
+postDND[postDND == 0] <- NA
+postDND[postDND == 99] <- 0
+
+plot(postDND)
+
 
 names(postDND) <- "post_MFAS"
 
@@ -110,7 +119,7 @@ postDND_df = st_as_stars(postDND)
 m9 = ggplot() + 
   scale_fill_continuous(
     type = "viridis", option = "A",
-    direction = 1,
+    direction = -1,
     na.value = "transparent"
   ) +
   geom_stars(data = postDND_df,

@@ -218,23 +218,29 @@ m14 + m15 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ### 3. Assessing intensity of individual threats
 
--   Scale intensity data so values range between 0-1 for layers with
+-   Scale intensity data so values range between 0-1 for activities with
     effort information: Fishing effort, Shipping,
--   Presence /absence footprint data is either 0 or 1: Oil & Gas Explorations, Military Activities
--   The relative intensity of threats in each period are summed and rescaled between 0-100% to
-    visualize areas of potentially higher cumulative impact
+-   Presence /absence footprint data is either 0 or 1: Oil & Gas Explorations, Military Exercise areas
+-   The relative intensity of activities in each period are summed and rescaled between 0-100% to
+    visualize areas of increased and decreased intensity and potential threat
 
-```{r Calc CHI, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE }
-source(here::here("scripts/calcCHI.r"), local = knitr::knit_global(), )
+```{r Calc threat dif, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE }
+source(here::here("scripts/calcThreatDif.r"), local = knitr::knit_global(), )
 
 # plot by threat
 plotThreats1 + plotThreats2 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 
 
-  #plot CHI PRE/ POST
+  #plot  PRE/ POST Dif by threat
 
-CHI_map
+diffThreats_plot
+
+source(here::here("scripts/statsThreats.R"), local = knitr::knit_global(), )
+# Display table in RMarkdown
+          kable(DifStats_threats, caption = "Difference in Relative Threat Intensity")%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+                full_width = FALSE, position = "center")
 ```
 
 ### 4. Calculating difference in CHI between periods
@@ -250,6 +256,7 @@ CHI_map
 -   About 2/3 of all the cells will differ by less than the rmse.
 
 ```{r Calc CHI difference, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
+source(here::here("scripts/calcCHI.r"), local = knitr::knit_global(), )
 
 print(paste("RMSE = " , round(RMSError, 2), sep = ""))
 

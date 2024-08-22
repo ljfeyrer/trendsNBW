@@ -4,14 +4,14 @@
 pointRaster <- function(file, template, dsn){
   file_p <- st_buffer(file, 1000)
   r <- rasterize(file_p, template,  fun="sum", background = 0)
-  r[r ==0] <- NA
+  # r[r ==0] <- NA
   writeRaster(r, filename = paste(dsn, "//", deparse(substitute(file)), ".tif", sep = ""), overwrite = TRUE,filetype ='GTiff')
 }
 
 polyRaster <- function(file, template, dsn){
   file_p <- st_buffer( file, 100)
   r <- rasterize(file_p, template,  fun="count", background = 0)
-  r[r ==0] <- NA
+  # r[r ==0] <- NA
   writeRaster(r, filename = paste(dsn, "//", deparse(substitute(file)), ".tif", sep = ""), overwrite = TRUE,filetype ='GTiff')
 }
 
@@ -69,7 +69,7 @@ halpernRaster <- function(grid1, path, NBW, writepath){
       # get all data values
         effort_values <- values(effort)
         # set 0 to NA
-        effort_values[effort_values == 0] <-NA
+        # effort_values[effort_values == 0] <-NA
       probs=seq(0, 1, 0.1)
       quantiles <- quantile(effort_values, probs = probs, na.rm = TRUE)
       
@@ -83,7 +83,7 @@ halpernRaster <- function(grid1, path, NBW, writepath){
       values(Eff_quant_rast) <- (effort_binned_values)
       
       # plot(Pel_quant_rast)
-      writeRaster(Eff_quant_rast*10, filename = paste(writepath,"//", names(effort), "Quant.tif", sep = ""), overwrite = TRUE, filetype  ='GTiff')
+      writeRaster(Eff_quant_rast*10, filename = paste(writepath,"//", names(effort), "_Quant.tif", sep = ""), overwrite = TRUE, filetype  ='GTiff')
       
 }
 
