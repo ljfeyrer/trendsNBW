@@ -218,25 +218,25 @@ plotThreats1
               na.rm = T)+
    geom_sf(
      data = nbw_ImHab2023_UTM,
-     col = "black",
+     col = "#FFD300",
      fill = NA,
-     size = .2
+     linewidth = .8
    ) +
    geom_sf(
      data = Gully_UTM,
-     col = "#2f4858",
+     col = "black",
      fill = NA,
      linewidth  = .75
    )    +
    geom_sf(
      data = NBW_CH_UTM%>%filter(DESCRIP != "The Gully"),
-     col = "#2f4858",
+     col = "black",
      fill = NA,
      linewidth  = .75
    ) +
    
    # add land region
-   geom_sf(data = landUTM, color = NA, fill = "grey50") +
+   geom_sf(data = landUTM, color = "darkgray", fill = "#9D8566") +
    labs(title = "") +
    # add scale bar
    annotation_scale(
@@ -261,10 +261,10 @@ plotThreats1
    # we set the left and right margins to 0 to remove 
    # unnecessary spacing in the final plot arrangement.
    theme(plot.margin = margin(0, 0, 0, 0), plot.title = element_text(hjust=0.5), plot.subtitle  = element_text(hjust=0.5))+
-   guides(fill = guide_colourbar(title = "Change in Intensity")) 
+   guides(fill = guide_colourbar(title = "Intensity Difference")) 
  
    
  diffThreats_plot
  
- ggsave(here::here("figs/plotDifThreats.png"), diffThreats_plot, dpi = 300)
+ ggsave(here::here("figs/plotDifThreats.png"), diffThreats_plot, height = 8, width = 8, units = "in", dpi = 300)
  

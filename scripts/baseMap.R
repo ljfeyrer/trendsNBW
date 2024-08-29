@@ -176,13 +176,14 @@ sf_use_s2(FALSE)
         
               m <- ggplot() + theme_bw() +
                 # Assign a dummy variable for each layer to hack legend
-                geom_sf(data = nbw_ImHab2023_UTM, aes(fill = "Important Habitat"), col = "#fde725", 
+                geom_sf(data = nbw_ImHab2023_UTM, aes(fill = "Important Habitat"), col = "#FFD300", 
                         alpha = .1, size = .15) +
-                geom_sf(data = landUTM, aes( color = "Sable Island"), fill = "gray", linewidth = .8) +
+                geom_sf(data = landUTM, aes( color = "Sable Island"), fill = "#E1BF92", linewidth = .8) +
                 geom_sf(data = bathy, color = "gray") +
                 geom_sf(data = Gully_UTM%>%filter(NAME == "Gully MPA (Marine Protected Area), outer boundary"), 
                         aes(col = "The Gully"), fill = NA,  linewidth = .8) +
-                geom_sf(data = NBW_CH_UTM, aes(fill = "Critical Habitat"), col = "#440154", alpha = .5, size = .5) +
+                geom_sf(data = NBW_CH_UTM, aes(fill = "Critical Habitat"), col = "black", alpha = .5, 
+                        linewidth= 1) +
                
                 #add sightings and detects of NBW
                 
@@ -201,10 +202,10 @@ sf_use_s2(FALSE)
                 
                 scale_fill_manual(values = c(
                                              
-                                             "Important Habitat" = "#fde725", 
-                                              "Critical Habitat" = "#440154"),
+                                             "Important Habitat" = "#FFD300", 
+                                              "Critical Habitat" = NA),
                                   name = "Layer Type") +
-  scale_color_manual(values = c("The Gully" = "#21918c", "Sable Island" = "darkgrey"), name = "Layer Type")+
+  scale_color_manual(values = c("The Gully" = "Black", "Sable Island" = "#9D8566"), name = "Layer Type")+
                 # guides(fill = guide_legend(override.aes = list(color = NA)))+
               
 
@@ -221,12 +222,12 @@ sf_use_s2(FALSE)
                    color = "black", size = 3)
 
         
-        # print(m)
+        print(m)
         
         #save map
 #  
  gg_Fig2path =  here::here("figs/Fig_1b.png")
-ggsave(gg_Fig2path, m,  dpi = 300)
+ggsave(gg_Fig2path, m,  height = 7, width = 7,units = "in" ,dpi = 300)
 
 
 # #a template raster for data processing
