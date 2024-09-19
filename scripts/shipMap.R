@@ -27,9 +27,12 @@
 
 
 ##  Import early shipping raster -------
-      # layers taken from SSHUA
-      
-      ship_pre = rast("shapes/Shipping/traffic2000")
+      #LRIT layer
+      ship_pre = rast("shapes/Shipping/shipping2010.tif")
+
+# layers taken from SSHUA
+
+      # ship_pre = rast("shapes/Shipping/traffic2000")
       ship_pre <- terra::project(ship_pre, template, res = 1000, method = 'near')
       ship_pre <- crop(ship_pre, SShelf)
       names(ship_pre) <-"pre_Ship"
@@ -37,7 +40,7 @@
       
       #make relative intensity scale
       quantEffort(ship_pre, writepath = "output/GRIDS/PRE/Shipping/")
-      pre = "output/GRIDS/PRE/Shipping/pre_ShipQuant.tif"
+      pre = "output/GRIDS/PRE/Shipping/pre_Ship_Quant.tif"
       ship_pre = rast(pre)
       # plot(ship_pre)
 

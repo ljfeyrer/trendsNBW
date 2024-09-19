@@ -72,22 +72,22 @@ plotThreats1 =  ggplot() +
     bar_cols = c("grey40", "white")
   ) +
   facet_wrap(~attributes, drop = F, 
-             labeller = labels) +
+             labeller = labels, ncol = 1) +
   # set map limits
   coord_sf(xlim = c(x_min - 50000, x_max + 5000), ylim = c(y_min, y_max), expand = FALSE) +
   
   # format axes
   ylab("") +
   xlab("") +
-  theme(
+  theme(panel.spacing.x = unit(4, "mm"),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    legend.position="bottom"
+    legend.position="right"
   ) +
   # we set the left and right margins to 0 to remove 
   # unnecessary spacing in the final plot arrangement.
-  theme(plot.margin = margin(0, 0, 0, 0), plot.title = element_text(hjust=0.5), plot.subtitle  = element_text(hjust=0.5))+
-  guides(fill = guide_colourbar(title = "Relative Threat Intensity"),
+  theme(plot.margin = margin(0, .5, 0, 0, "pt"), plot.title = element_text(hjust=0.5), plot.subtitle  = element_text(hjust=0.5))+
+  guides(fill = guide_colourbar(title = "Relative\nIntensity", direction = "vertical"),
          colour = guide_colourbar(title = "Impact")) 
 
 plotThreats1
@@ -148,7 +148,7 @@ plotThreats1
      text_cex = 0.6,
      bar_cols = c("grey40", "white")
    ) +
-   facet_wrap(~attributes, drop = F, 
+   facet_wrap(~attributes, drop = F,  ncol = 1,
               labeller = labels) +
    # set map limits
    coord_sf(xlim = c(x_min - 50000, x_max + 5000), ylim = c(y_min, y_max), expand = FALSE) +
@@ -156,22 +156,28 @@ plotThreats1
    # format axes
    ylab("") +
    xlab("") +
-   theme(
+   theme(panel.spacing.x = unit(4, "mm"),
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
-     legend.position="bottom"
+     legend.position="right", axis.ticks.y = element_blank(), axis.text.y = element_blank(),
+     axis.title.y = element_blank()
    ) +
    # we set the left and right margins to 0 to remove 
    # unnecessary spacing in the final plot arrangement.
-   theme(plot.margin = margin(0, 0, 0, 0), plot.title = element_text(hjust=0.5), plot.subtitle  = element_text(hjust=0.5))+
-   guides(fill = guide_colourbar(title = "Relative Threat Intensity")) 
+   theme(plot.margin = margin(0, 0, 0, 0, "pt"), 
+         plot.title = element_text(hjust=0.5), plot.subtitle  = element_text(hjust=0.5))+
+   guides(fill = guide_colourbar(title = "Relative\nIntensity", direction = "vertical")) 
  
  plotThreats2
  
  ggsave(here::here("figs/plotThreats_post.png"), plotThreats2, dpi = 300)
  
  # plot combined threats
- threats2_combined = plotThreats1 + plotThreats2 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
+ threats2_combined = (plotThreats1 + theme(plot.margin = unit(c(0,-30,0,0), "pt")) ) + 
+   # plot_spacer() +
+   plotThreats2+
+   plot_layout(guides = 'collect', axes = 'collect',  ncol = 2)+ plot_annotation(tag_levels = 'A' )&
+   theme(legend.position = "right")
  ggsave(here::here("figs/plotThreats_combined.png"), threats2_combined, dpi = 300)
  
 ######

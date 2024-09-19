@@ -176,8 +176,8 @@ sf_use_s2(FALSE)
         
               m <- ggplot() + theme_bw() +
                 # Assign a dummy variable for each layer to hack legend
-                geom_sf(data = nbw_ImHab2023_UTM, aes(fill = "Important Habitat"), col = "#FFD300", 
-                        alpha = .1, size = .15) +
+                geom_sf(data = nbw_ImHab2023_UTM, aes(col = "Important Habitat"), fill = NA, 
+                        alpha = .1, linewidth = 1) +
                 geom_sf(data = landUTM, aes( color = "Sable Island"), fill = "#E1BF92", linewidth = .8) +
                 geom_sf(data = bathy, color = "gray") +
                 geom_sf(data = Gully_UTM%>%filter(NAME == "Gully MPA (Marine Protected Area), outer boundary"), 
@@ -202,10 +202,10 @@ sf_use_s2(FALSE)
                 
                 scale_fill_manual(values = c(
                                              
-                                             "Important Habitat" = "#FFD300", 
+                                              
                                               "Critical Habitat" = NA),
                                   name = "Layer Type") +
-  scale_color_manual(values = c("The Gully" = "Black", "Sable Island" = "#9D8566"), name = "Layer Type")+
+  scale_color_manual(values = c("The Gully" = "Black", "Sable Island" = "#9D8566", "Important Habitat" = "#FFD300"), name = "Layer Type")+
                 # guides(fill = guide_legend(override.aes = list(color = NA)))+
               
 
