@@ -36,7 +36,7 @@ sf_use_s2(FALSE)
           
           terra::ext(Bound_boxBUTM)
           #Region boundaries ------
-          REGIONS <-read_sf("~/CODE/prepWSDB/shapefiles/DFO_NAFO_EEZ_Land.shp")%>%
+          REGIONS <-read_sf("~/CODE/shapefiles/DFORegions/DFO_NAFO_EEZ_Land.shp")%>%
             st_transform(4326)%>%st_transform(UTM20)
           
           SShelf <-REGIONS%>%dplyr::filter(DFO_REGION == "MAR")
@@ -57,8 +57,39 @@ sf_use_s2(FALSE)
           
           
           ### bathy data -------
-          #original bathy data might be a bit smoother
-          bathy <- read_sf(here::here("shapes/bathymetry_pl_v2/bathymetry_l_v2.shp"))%>%
+          # #for contours use GEBCO
+          # r <- terra::rast("~/CODE/shapefiles/Bathymetry/GEBCO_bathy/gebco_2020.tif")
+          # ext(r)
+          # crs(r)
+          # #plot(r)
+          # 
+          # #need to downsample bc too big
+          # bathy = terra::aggregate(r, fact = 2)
+          # # bathy_df <- as.data.frame(bathy, xy = T)%>%dplyr::rename(Depth = gebco_2020)
+          # 
+          # #now crop to extent of SDM area
+          # bathy_SDM = bathy%>%crop(Bound_boxB)%>%terra::project("EPSG:32621")
+          # 
+          # bathy_SDM <- as.data.frame(bathy_SDM, xy = T)%>%dplyr::rename(Depth = gebco_2020)%>%
+          #   mutate(Depth = ifelse(Depth >=-10, NA, Depth))
+          # 
+          # #now crop to extent of Gully area
+          # bathy_crop = bathy%>%crop(Bound_boxB)
+          # 
+          # crs(bathy_crop)
+          # 
+          # bathy_crop <- as.data.frame(bathy_crop, xy = T)%>%dplyr::rename(Depth = gebco_2020)%>%
+          #   mutate(Depth = ifelse(Depth >=-10, NA, Depth))
+          # 
+          # 
+          # #contours----
+          # cont <- as.contour(r, levels= c( -200, -350, -400, -500,-1000,-2000,-2500,-3000, -3200, -4000, -5000))
+          # cont <- st_as_sf(cont)%>%st_cast("LINESTRING")
+          # cont_UTM = cont%>%st_transform(UTM20)%>%st_intersection(Bound_boxBUTM)
+          
+          
+          #this bathy data is a bit smoother
+          bathy <- read_sf(here::here("~/CODE/shapefiles/Bathymetry/bathymetry_pl_v2/bathymetry_l_v2.shp"))%>%
             st_transform(UTM20)%>%st_intersection(Bound_boxBUTM)           #change projection from Albers to Lat Long
 
           
@@ -115,7 +146,7 @@ sf_use_s2(FALSE)
             st_transform(UTM20)%>%mutate(NAME = DESCRIP)
           
           ##NBW IMP HAB 2023 area  
-          nbw_ImHab2023_UTM = read_sf(here::here("~/CODE/shapefiles/ImpHabitat/Feyreretal2024/NBW_ImHabitat2023.shp"))%>%
+          nbw_ImHab_UTM = read_sf(here::here("~/CODE/shapefiles/ImpHabitat/Feyreretal2024/NBW_ImHab_edit.shp"))%>%
             st_transform(4326)%>%st_intersection(Bound_boxB)%>%
             st_transform(UTM20)
          #bluewhale imp habitat
@@ -176,7 +207,7 @@ sf_use_s2(FALSE)
         
               m <- ggplot() + theme_bw() +
                 # Assign a dummy variable for each layer to hack legend
-                geom_sf(data = nbw_ImHab2023_UTM, aes(col = "Important Habitat"), fill = NA, 
+                geom_sf(data = nbw_ImHab_UTM, aes(col = "Important Habitat"), fill = NA, 
                         alpha = .1, linewidth = 1) +
                 geom_sf(data = landUTM, aes( color = "Sable Island"), fill = "#E1BF92", linewidth = .8) +
                 geom_sf(data = bathy, color = "gray") +

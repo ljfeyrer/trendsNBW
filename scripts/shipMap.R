@@ -39,8 +39,9 @@
       # plot(ship_pre)
       
       #make relative intensity scale
+      #deciles
       quantEffort(ship_pre, writepath = "output/GRIDS/PRE/Shipping/")
-      pre = "output/GRIDS/PRE/Shipping/pre_Ship_Quant.tif"
+      pre = "output/GRIDS/PRE/Shipping/pre_Ship_deciles.tif"
       ship_pre = rast(pre)
       # plot(ship_pre)
 
@@ -69,9 +70,9 @@
       # plot(ship_post)
       
       #make relative intensity scale
-    
+      #decile rank differences
       quantEffort(ship_post, writepath = "output/GRIDS/POST/Shipping/")
-      post = "output/GRIDS/POST/Shipping/post_ShipQuant.tif"
+      post = "output/GRIDS/POST/Shipping/post_Ship_deciles.tif"
       ship_post = rast(post)
       # plot(ship_post)
 

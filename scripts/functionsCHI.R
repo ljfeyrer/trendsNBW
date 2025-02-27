@@ -62,7 +62,7 @@ halpernRaster <- function(grid1, path, NBW, writepath){
   writeRaster(grid1, filename = paste(writepath,"//", names(grid1), ".tif", sep = ""), overwrite = TRUE, filetype  ='GTiff')
 }
 
-
+#
 # Quantile effort into deciles
       quantEffort <- function(effort, writepath){
       # Calculate quantile breaks (excluding NA values)
@@ -83,7 +83,7 @@ halpernRaster <- function(grid1, path, NBW, writepath){
       values(Eff_quant_rast) <- (effort_binned_values)
       
       # plot(Pel_quant_rast)
-      writeRaster(Eff_quant_rast*10, filename = paste(writepath,"//", names(effort), "_Quant.tif", sep = ""), overwrite = TRUE, filetype  ='GTiff')
+      writeRaster(Eff_quant_rast*10, filename = paste0(writepath,"//", names(effort), "_deciles.tif"), overwrite = TRUE, filetype  ='GTiff')
       
 }
 
@@ -105,7 +105,7 @@ halpernRaster <- function(grid1, path, NBW, writepath){
         values(Eff_quant_rast) <- (effort_binned_values-11)*-1
         
         # plot(Pel_quant_rast)
-        writeRaster(Eff_quant_rast*10, filename = paste(writepath,"//", names(effort), "_Quant.tif", sep = ""), overwrite = TRUE, filetype  ='GTiff')
+        writeRaster(Eff_quant_rast*10, filename = paste0(writepath,"//", names(effort), "_deciles.tif"), overwrite = TRUE, filetype  ='GTiff')
         
       }
       

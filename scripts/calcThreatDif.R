@@ -223,7 +223,7 @@ plotThreats1
    geom_stars(data  = dif_threats_df, 
               na.rm = T)+
    geom_sf(
-     data = nbw_ImHab2023_UTM,
+     data = nbw_ImHab_UTM,
      col = "#FFD300",
      fill = NA,
      linewidth = .8
