@@ -39,7 +39,7 @@ PlotPre =  ggplot() +
              na.rm = T,
              downsample = 3) +
   geom_sf(
-    data = nbw_ImHab2023_UTM,
+    data = nbw_ImHab_UTM,
     col = "black",
     fill = NA,
     size = .2
@@ -85,7 +85,7 @@ PlotPost =  ggplot() +
              na.rm = T,
              downsample = 3) +
   geom_sf(
-    data = nbw_ImHab2023_UTM,
+    data = nbw_ImHab_UTM,
     col = "black",
     fill = NA,
     size = .2
@@ -138,7 +138,7 @@ ggsave(fig4CHIpath, CHI_map, dpi = 300)
 
 sumDif = sumImpactpost- sumImpactPre
 summary(sumDif)
-sumDif = mask(sumDif,nbw_ImHab2023_UTM)
+sumDif = mask(sumDif,nbw_ImHab_UTM)
 
 writeRaster(sumDif, filename = here::here("output/GRIDS/CHI/Sum/sumDif.tif"), overwrite = TRUE,filetype='GTiff')
 
@@ -153,7 +153,7 @@ A = ggplot() +
   scale_fill_gradientn(  colours = rev(c("dark orange", "white", "purple")),
                          na.value="transparent")+
   geom_sf(
-    data = nbw_ImHab2023_UTM ,
+    data = nbw_ImHab_UTM ,
     col = "dark grey",
     fill = NA,
     size = .2
@@ -209,7 +209,7 @@ RMSError = x
 #look at > 1RMSE?
 
 RMSE_grid = sumDif
-sumDif = mask(sumDif,nbw_ImHab2023_UTM)
+sumDif = mask(sumDif,nbw_ImHab_UTM)
 
 RMSE_grid[RMSE_grid <x & RMSE_grid>=0] <- NA
 RMSE_grid[RMSE_grid >-x & RMSE_grid<=0] <- NA
@@ -226,7 +226,7 @@ B = ggplot() +
   scale_fill_gradientn(  colours = rev(c("dark orange", "white", "purple")),
                          na.value=NA)+
   geom_sf(
-    data = nbw_ImHab2023_UTM ,
+    data = nbw_ImHab_UTM ,
     col = "dark grey",
     fill = NA,
     size = .2
