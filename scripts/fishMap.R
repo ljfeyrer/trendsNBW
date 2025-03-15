@@ -46,7 +46,7 @@ library(classInt)
                     na.value = "transparent"
                   ) +
                   geom_sf(
-                    data = nbw_ImHab2023_UTM,
+                    data = nbw_ImHab_UTM,
                     col = "black",
                     fill = NA,
                     size = .2
@@ -111,7 +111,7 @@ library(classInt)
                      na.value = "transparent"
                     ) +
                     geom_sf(
-                      data = nbw_ImHab2023_UTM,
+                      data = nbw_ImHab_UTM,
                       col = "black",
                       fill = NA,
                       size = .2
@@ -185,7 +185,7 @@ library(classInt)
                    na.rm = T,
                    downsample = 3) +
         geom_sf(
-          data= nbw_ImHab2023_UTM,
+          data= nbw_ImHab_UTM,
           col = "black",
           fill = NA,
           size = .2
@@ -261,7 +261,7 @@ library(classInt)
                          na.rm = T,
                          downsample = 3) +
               geom_sf(
-                data= nbw_ImHab2023_UTM,
+                data= nbw_ImHab_UTM,
                 col = "black",
                 fill = NA,
                 size = .2
@@ -341,7 +341,7 @@ library(classInt)
                          na.rm = T,
                          downsample = 3) +
               geom_sf(
-                data= nbw_ImHab2023_UTM,
+                data= nbw_ImHab_UTM,
                 col = "black",
                 fill = NA,
                 size = .2
@@ -401,7 +401,7 @@ library(classInt)
                          na.rm = T,
                          downsample = 3) +
               geom_sf(
-                data= nbw_ImHab2023_UTM,
+                data= nbw_ImHab_UTM,
                 col = "black",
                 fill = NA,
                 size = .2
@@ -461,8 +461,8 @@ library(classInt)
             postFish = postFish/3
             # plot(postFish)
             
-            #mask Gully Z1 from post 2004 fish effort----
-            postFish <- mask(postFish,GullyZ1, inverse = T, updatevalue =0)
+            # #mask Gully Z1 from post 2004 fish effort----
+            # postFish <- mask(postFish,GullyZ1, inverse = T, updatevalue =0)
             
             # plot(postFish)
             

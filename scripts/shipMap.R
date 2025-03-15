@@ -115,7 +115,7 @@ m14 = ggplot() +
   scale_fill_viridis_c(direction = -1, na.value=NA, option = "D", limits = c(0, 100)) +
 
   geom_sf(
-    data = nbw_ImHab2023_UTM,
+    data = nbw_ImHab_UTM,
     col = "black",
     fill = NA,
     size = .2
@@ -159,7 +159,7 @@ m14 = ggplot() +
                    downsample = 3) +
         scale_fill_viridis_c(direction = -1, na.value=NA, option = "D", limits = c(0, 100)) +
         geom_sf(
-          data = nbw_ImHab2023_UTM,
+          data = nbw_ImHab_UTM,
           col = "black",
           fill = NA,
           size = .2

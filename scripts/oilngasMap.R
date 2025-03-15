@@ -36,7 +36,7 @@
               theme_bw()+
               labs(title ="All Wells") +
               geom_sf(
-                data = nbw_ImHab2023_UTM,
+                data = nbw_ImHab_UTM,
                 col = "black",
                 fill = NA,
                 size = .2
@@ -86,7 +86,7 @@
       
       #plot all by year
       ggplot()+ geom_sf(data = bathy, col = "grey",  size = 0.2)+
-        geom_sf(data = nbw_ImHab2023_UTM, col = "black",size = .2, fill = NA)+
+        geom_sf(data = nbw_ImHab_UTM, col = "black",size = .2, fill = NA)+
         geom_sf(data = platforms, aes(col = YEAR))+theme_bw()+
         labs(title ="All Platforms")+
         # set map limits
@@ -107,7 +107,7 @@ postPlatforms = pointRaster(postPlatforms, template, dsn2)
       
       #plot all by year
       ggplot()+ geom_sf(data = bathy, col = "grey",  size = 0.2)+
-        geom_sf(data = nbw_ImHab2023_UTM, col = "black",size = .2, fill = NA)+
+        geom_sf(data = nbw_ImHab_UTM, col = "black",size = .2, fill = NA)+
         geom_sf(data = ProdLic, aes(col = YEAR))+theme_bw()+
         labs(title ="All Production Licenses")+
         # set map limits
@@ -134,7 +134,7 @@ postProdLic = polyRaster(postProdLic, template, dsn2)
           ggplot()+ geom_sf(data = bathy, col = "grey",  size = 0.2)+
             geom_sf(data = SigDisLic, aes(col = YEAR))+theme_bw()+
             labs(title ="Significant Discovery Licenses")+
-            geom_sf(data = nbw_ImHab2023_UTM, col = "black",size = .2, fill = NA)+
+            geom_sf(data = nbw_ImHab_UTM, col = "black",size = .2, fill = NA)+
             
             # set map limits
             coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE)
@@ -165,7 +165,7 @@ polyRaster(postSigLic, template, dsn2)
       ggplot()+ geom_sf(data = bathy, col = "grey",  size = 0.2)+
          geom_sf(data = pipes, col = "blue")+theme_bw()+
         labs(title ="Pipelines")+
-        geom_sf(data = nbw_ImHab2023_UTM, col = "black",size = .2, fill = NA)+
+        geom_sf(data = nbw_ImHab_UTM, col = "black",size = .2, fill = NA)+
         # set map limits
         coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE)
 
@@ -213,7 +213,7 @@ m10 = ggplot() +
     direction = 1,
     na.value = "transparent"
   ) +
-  geom_sf(data = nbw_ImHab2023_UTM, col = "black",fill = NA, size = .2)+
+  geom_sf(data = nbw_ImHab_UTM, col = "black",fill = NA, size = .2)+
   geom_stars(data = Op_pre_df, na.rm = T, downsample = 0)+
   geom_sf(data = bathy, col = "gray", size = 0.2) +
   # add land region
@@ -249,7 +249,7 @@ m11 = ggplot() +
     direction = 1,
     na.value = "transparent"
   ) +
-  geom_sf(data = nbw_ImHab2023_UTM, col = "black",fill = NA, size = .2)+
+  geom_sf(data = nbw_ImHab_UTM, col = "black",fill = NA, size = .2)+
   geom_stars(data = Op_post_df, na.rm = T, downsample = 0)+
   geom_sf(data = bathy, col = "gray", size = 0.2) +
   # add land region

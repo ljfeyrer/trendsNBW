@@ -65,7 +65,7 @@ m8 = ggplot() +
              na.rm = T,
              downsample = 3) +
   geom_sf(
-    data = nbw_ImHab2023_UTM,
+    data = nbw_ImHab_UTM,
     col = "black",
     fill = NA,
     size = .2
@@ -127,7 +127,7 @@ m9 = ggplot() +
              downsample = 3) +
  
   geom_sf(
-    data = nbw_ImHab2023_UTM,
+    data = nbw_ImHab_UTM,
     col = "black",
     fill = NA,
     size = .2
