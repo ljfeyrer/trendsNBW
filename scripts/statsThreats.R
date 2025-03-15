@@ -2,7 +2,7 @@
 
 #sum by Threat/ period-------
 #pre
-pre_threat= mask(pre_threats,nbw_ImHab2023_UTM)
+pre_threat= mask(pre_threats,nbw_ImHab_UTM)
 
 summary_pre<- lapply(1:nlyr(pre_threat), function(i) {
   # Extract each layer as a SpatRaster
@@ -30,7 +30,7 @@ contributionPre <- (threatSum_pre / threatsum_pre)*100
 
 #POST
 #post
-post_threat= mask(post_threats,nbw_ImHab2023_UTM)
+post_threat= mask(post_threats,nbw_ImHab_UTM)
 
 summary_post<- lapply(1:nlyr(post_threat), function(i) {
   # Extract each layer as a SpatRaster
@@ -60,8 +60,8 @@ contributionpost <- (threatSum_post / threatsum_post)*100
 #total area calculations------
 
 #Important Habitat area
-nbw_ImHab2023_UTM$area = st_area(nbw_ImHab2023_UTM)
-area_nbwhab_km2= as.numeric(sum(nbw_ImHab2023_UTM$area)/1000000)
+nbw_ImHab_UTM$area = st_area(nbw_ImHab_UTM)
+area_nbwhab_km2= as.numeric(sum(nbw_ImHab_UTM$area)/1000000)
 
 #MPA
 areaMPA_km2 = as.numeric(sum(st_area(Gully_UTM%>%filter(ZONE_ID == 5)))/1000000)
@@ -80,7 +80,7 @@ sum_NBW = (areaCH_km2+areaMPA_km2+Z1Gully_km2)
 
 #SUMMARY STATS DIF in threat-------
 sumDif = post_threat- pre_threat
-sumDif = mask(sumDif,nbw_ImHab2023_UTM)
+sumDif = mask(sumDif,nbw_ImHab_UTM)
 layer = c( "Fishing Effort", 
    "Military Sonar Areas",
     "Oil & Gas Operations", 

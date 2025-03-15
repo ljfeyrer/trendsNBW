@@ -2,7 +2,7 @@
 
 #sum by Threat/ period-------
 #pre
-pre_CHI = mask(pre_CHI,nbw_ImHab2023_UTM)
+pre_CHI = mask(pre_CHI,nbw_ImHab_UTM)
 
 summary_pre<- lapply(1:nlyr(pre_CHI), function(i) {
   # Extract each layer as a SpatRaster
@@ -30,7 +30,7 @@ summary_pre
 
 #POST
       #post
-      post_CHI = mask(post_CHI,nbw_ImHab2023_UTM)
+      post_CHI = mask(post_CHI,nbw_ImHab_UTM)
       
       summary_post<- lapply(1:nlyr(post_CHI), function(i) {
         # Extract each layer as a SpatRaster
@@ -60,8 +60,8 @@ summary_pre
 #total area calculations------
 
 #Important Habitat area
-nbw_ImHab2023_UTM$area = st_area(nbw_ImHab2023_UTM)
-area_nbwhab_km2= as.numeric(sum(nbw_ImHab2023_UTM$area)/1000000)
+nbw_ImHab_UTM$area = st_area(nbw_ImHab_UTM)
+area_nbwhab_km2= as.numeric(sum(nbw_ImHab_UTM$area)/1000000)
 
 #MPA
 areaMPA_km2 = as.numeric(sum(st_area(Gully_UTM%>%filter(ZONE_ID == 5)))/1000000)
@@ -80,7 +80,7 @@ sum_NBW = (areaCH_km2+areaMPA_km2+Z1Gully_km2)
 
 #SUMMARY STATS DIF in CHI -------
           sumDif = sumImpactpost- sumImpactPre
-          sumDif = mask(sumDif,nbw_ImHab2023_UTM)
+          sumDif = mask(sumDif,nbw_ImHab_UTM)
           Dif_StudyArea=global(sumDif, c("mean","sd","min","max","rms"),na.rm = T)
           Dif_StudyArea = tibble(Dif_StudyArea, median = median(sumDif[], na.rm = T))
          
@@ -116,7 +116,7 @@ sum_NBW = (areaCH_km2+areaMPA_km2+Z1Gully_km2)
 
       #TABLES  PRE----
       
-        sumDifpre = mask(sumImpactPre,nbw_ImHab2023_UTM)
+        sumDifpre = mask(sumImpactPre,nbw_ImHab_UTM)
       Dif_StudyArea=global(sumDifpre, c("mean","sd","min","max","rms"),na.rm = T)
       Dif_StudyArea = tibble(Dif_StudyArea, median = median(sumDifpre[], na.rm = T))
       
@@ -152,7 +152,7 @@ sum_NBW = (areaCH_km2+areaMPA_km2+Z1Gully_km2)
       
       #TABLES  POST-----
       
-      sumDifpost = mask(sumImpactpost, nbw_ImHab2023_UTM)
+      sumDifpost = mask(sumImpactpost, nbw_ImHab_UTM)
       Dif_StudyArea=sumImpactpostDif_StudyArea=global(sumDifpost, c("mean","sd","min","max","rms"),na.rm = T)
       Dif_StudyArea = tibble(Dif_StudyArea, median = median(sumDifpost[], na.rm = T))
       

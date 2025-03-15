@@ -44,7 +44,7 @@ plotThreats1 =  ggplot() +
   geom_stars(data  = Impactpre_df, alpha = .95,
              na.rm = T)+
   geom_sf(
-    data = nbw_ImHab2023_UTM,
+    data = nbw_ImHab_UTM,
     col = "black",
     fill = NA,
     size = .2
@@ -120,7 +120,7 @@ plotThreats1
    geom_stars(data  = Impactpost_df, alpha = .95,
               na.rm = T)+
    geom_sf(
-     data = nbw_ImHab2023_UTM,
+     data = nbw_ImHab_UTM,
      col = "black",
      fill = NA,
      size = .2

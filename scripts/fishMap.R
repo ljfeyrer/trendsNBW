@@ -461,7 +461,7 @@ library(classInt)
             postFish = postFish/3
             # plot(postFish)
             
-            # #mask Gully Z1 from post 2004 fish effort----
+            # #MASK Gully Z1 from post 2004 fish effort----
             # postFish <- mask(postFish,GullyZ1, inverse = T, updatevalue =0)
             
             # plot(postFish)
