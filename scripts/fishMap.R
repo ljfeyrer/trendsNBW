@@ -28,7 +28,7 @@ library(classInt)
                 # Calculate quantile breaks (excluding NA values) 
                 fishdir = file.path("output", "GRIDS", "PRE" ,"Fish")
                 quantEffort(bot_long_fish, writepath = fishdir)
-                # plot(bottomll_Quant)
+                plot(bottomll_Quant)
           
             
                 #transform raster to stars for plotting
