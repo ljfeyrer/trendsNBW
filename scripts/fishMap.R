@@ -28,7 +28,6 @@ library(classInt)
                 # Calculate quantile breaks (excluding NA values) 
                 fishdir = file.path("output", "GRIDS", "PRE" ,"Fish")
                 quantEffort(bot_long_fish, writepath = fishdir)
-                bottomll_Quant = rast(paste(fishdir, "preFixedFish_Quant.tif", sep = "//"))
                 # plot(bottomll_Quant)
           
             
@@ -92,7 +91,6 @@ library(classInt)
                 # Calculate quantile breaks (excluding NA values) 
                 fishdir = file.path("output", "GRIDS", "POST" ,"Fish")
                 quantEffort_inv(bot_long_fish_POST, writepath = fishdir)
-                bottomll_Quant = rast(paste(fishdir, "postFixedFish_Quant.tif", sep = "//"))
                 # plot(bottomll_Quant)
                 
                   ##### Plot Map m3-------
@@ -231,7 +229,6 @@ library(classInt)
       # Calculate quantile breaks (excluding NA values) 
       fishdir = file.path("output", "GRIDS", "POST" ,"Fish")
       quantEffort_inv(Pel_fish_POST, writepath = fishdir)
-      Pel_fish_POST_Quant = rast(paste(fishdir, "postPelFish_Quant.tif", sep = "//"))
       # plot(Pel_fish_POST_Quant)
       
             #### write raster----
@@ -462,7 +459,7 @@ library(classInt)
             # plot(postFish)
             
             # #MASK Gully Z1 from post 2004 fish effort----
-            # postFish <- mask(postFish,GullyZ1, inverse = T, updatevalue =0)
+            postFish <- mask(postFish,GullyZ1, inverse = T, updatevalue =0)
             
             # plot(postFish)
             
