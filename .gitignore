@@ -58,3 +58,4 @@ rsconnect/
 *.shp
 
 figs**
+.DS_Store
