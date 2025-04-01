@@ -15,7 +15,7 @@ pre_threats <- rast(dir(path=CHI_path,pattern="pre", full.names  = T))
 post_threats <- rast(dir(path=CHI_path,pattern="post", full.names  = T))
 
 # plot(post_threats[[1]])
-
+plot(pre_threats[[1]])
 
 
 #Pre individual threats facet maps---------
@@ -183,8 +183,24 @@ plotThreats1
 ######
  
 ## Difference between pre and post periods-----
- dif_threats = (post_threats - pre_threats)
- # plot(post_threats)
+ # Create temporary copies for manipulation of NA behaviour
+ post_temp <- post_threats
+ pre_temp <- pre_threats
+ 
+ # Get a mask of where each has NA values
+ post_na <- is.na(post_threats)
+ pre_na <- is.na(pre_threats)
+ both_na <- post_na & pre_na
+ 
+ # Set NAs to 0 temporarily for calculation
+ post_temp[post_na] <- 0
+ pre_temp[pre_na] <- 0
+ 
+ # Do the subtraction
+ dif_threats <- post_temp - pre_temp
+ 
+ # Restore NAs where both inputs had NAs
+ dif_threats[both_na] <- NA
  # plot(dif_threats)
  
  dif_path = here("output/GRIDS/DIF//")
@@ -212,7 +228,7 @@ plotThreats1
  diffThreats_plot = ggplot() +  
    scale_fill_gradientn(colours = 
                           rev(c("#ff5400", "#ff6d00", "#ff8500",
-                                "#ff9e00","gray", "#00b4d8","#0096c7",
+                                "#ff9e00","grey", "#00b4d8","#0096c7",
                                 "#0077b6","#023e8a")), 
                         limits=c(-100, 100), 
                         values = scales::rescale(c( -100, -.5, .5, 100)),
@@ -226,13 +242,13 @@ plotThreats1
      data = nbw_ImHab_UTM,
      col = "#FFD300",
      fill = NA,
-     linewidth = .8
+     linewidth = .5
    ) +
    geom_sf(
      data = Gully_UTM,
      col = "black",
      fill = NA,
-     linewidth  = .75
+     linewidth  = .55
    )    +
    geom_sf(
      data = NBW_CH_UTM%>%filter(DESCRIP != "The Gully"),
@@ -272,5 +288,5 @@ plotThreats1
    
  diffThreats_plot
  
- ggsave(here::here("figs/plotDifThreats.png"), diffThreats_plot, height = 8, width = 8, units = "in", dpi = 300)
+ ggsave(here::here("figs/Fig3_DifThreats.png"), diffThreats_plot,  dpi = 300)
  
