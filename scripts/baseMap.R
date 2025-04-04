@@ -12,7 +12,8 @@
 # 
 
 pacman::p_load(sp, terra, dplyr, sf, viridis, ggplot2, ggrepel, stringr, here, ggtext, readr, grid,
-               pals, tidyr, fuzzyjoin, patchwork, mapsf,
+               pals, tidyr, fuzzyjoin, patchwork, mapsf, classInt,
+
                ggforce, readr, ggspatial, lubridate, stars, patchwork, scales, RColorBrewer, grafify)
 
 sf_use_s2(FALSE)
@@ -253,7 +254,7 @@ sf_use_s2(FALSE)
                    color = "black", size = 3)
 
         
-        print(m)
+        # print(m)
         
         #save map
 #  

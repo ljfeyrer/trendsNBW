@@ -6,7 +6,7 @@ fishdir_post = file.path("output", "GRIDS", "POST" ,"Fish")
 
 # 
 # #####  i. Pelagic longline effort------
-          #PRE Period (1988-2004)
+          #PRE Period (1999-2003)
           #import data
           Pel_long_fish = vect("shapes/Fishing_Effort/PRE/PLL/pelagics_all.shp")
           Pel_long_fish =  project(Pel_long_fish[,6:6], crs(UTM20))
@@ -68,7 +68,7 @@ fishdir_post = file.path("output", "GRIDS", "POST" ,"Fish")
 
                             m2
 
-# ## POST Period (2005-2023)
+# ## POST Period  - Contemporary period data is based on Koen-Alonso percentiles of time spent/ grid cell from 2005-2021.
 #
 # #import
 Pel_fish_POST = rast(here::here("shapes/Fishing_Effort/POST/SS_Combined_Percentiles_Pelagic_2005-2021.tif"))
@@ -138,9 +138,7 @@ m5
          
 # ii. Bottom longline effort-------
                   # Early Period based on Human Use Atlas of the Scotian Shelf (1999-2003)
-                  # - Contemporary period data is based on Koen-Alonso percentiles of time spent/ grid cell from 2005-2021.
-                  
-                  #import data
+                   #import data
                   BLL_pre = vect("shapes/Fishing_Effort/PRE/gf_trawl/groundfish_stats.shp")
                   BLL_pre =  project(BLL_pre[,20:20], crs(UTM20))
                   plot(BLL_pre)
@@ -272,10 +270,7 @@ m5
 # #### iii. Groundfish Mobile --------
             # Trawl, Seine 
             # Early Period based on Human Use Atlas of the Scotian Shelf (1999-2003)
-            # Contemporary period data is based on Koen-Alonso percentiles of time spent/ grid cell from 2005-2021.
-
-
-##  PRE PERIOD 1999-2003 -------
+           ##  PRE PERIOD 1999-2003 -------
      
             
             #import data
@@ -336,8 +331,8 @@ plot(mobile_gf_pre)
             
             m6
   
-            ## POST Period (2005-2023) GF mobile-------
-            
+            ## POST GF mobile-------
+            # - Contemporary period data is based on Koen-Alonso percentiles of time spent/ grid cell from 2005-2021.
             #import
             GFmobile_POST = rast(here::here("shapes/Fishing_Effort/POST/SS_Combined_Percentiles_Groundfish_Mobile_2005-2021.tif"))
             

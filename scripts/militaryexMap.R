@@ -38,7 +38,7 @@ DND_areasUTM = vect(DND_areasUTM)
 #rasterize by count and set overlapping polygons to value = 1----
 dsn = here::here("output/GRIDS/PRE/")
 DND2Raster =  rasterize(DND_areasUTM, template)
-DND2Raster = crop(DND2Raster, SShelf)
+DND2Raster = mask(DND2Raster, SShelf)
 # DND2Raster[DND2Raster == 0] <- NA
 DND2Raster[DND2Raster >0] <- 100
 # DND2Raster[is.na(DND2Raster)] <- 0
@@ -105,8 +105,9 @@ postDND <- mask(DND2Raster,Gully_UTM, inverse = T, updatevalue =99 )
 # plot(postDND)
 postDND[postDND == 0] <- NA
 postDND[postDND == 99] <- 0
+postDND <- mask(postDND,preDND)
 
-plot(postDND)
+# plot(postDND1)
 
 
 names(postDND) <- "post_MFAS"

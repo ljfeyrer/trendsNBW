@@ -100,32 +100,10 @@ include_graphics(gg_Fig2path)
 -   Differences in the methods for assessing effort between fisheries
     and time periods result in some differences in the resolution of
     available information. All effort data was standardized into
-    percentiles.
+    deciles.
 
-```{r Groundfish - Fixed Gear (bottom longline), include = TRUE, fig.fullwidth = TRUE, message=FALSE, warning=FALSE}
-source(here::here("scripts/fishMap.r"), local = knitr::knit_global())
-
-#Bottom Longline
-# Plot map
-
-m2+m3+ plot_layout(guides = "collect")& theme(legend.position = 'bottom')
-
-```
-
-```{r Pelagic Longline, include = TRUE, fig.fullwidth = TRUE}
-
-#Pelagic Longline
-# Plot map
-
-m4+m5+ plot_layout(guides = "collect")& theme(legend.position = 'bottom')
-
-```
-
-```{r Grounfish Mobile, include = TRUE, fig.fullwidth = TRUE}
-
-#Early Period (1988-2004)------# # Contemporary Period (2005-2019)-------
-# Plot map
-m6 +m7 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
+```{r Pre/Post Fishing effort, include = TRUE, fig.fullwidth = TRUE, message=FALSE, warning=FALSE}
+source(here::here("scripts/CompareFish.r"), local = knitr::knit_global())
 
 ```
 
@@ -216,85 +194,22 @@ m14 + m15 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 
 ```
 
-### 3. Assessing intensity of individual threats
+### 3. Assessing difference in intensity of threats
 
--   Scale intensity data so values range between 0-1 for activities with
+-   Scale intensity data so values range between 0-100 for activities with
     effort information: Fishing effort, Shipping,
 -   Presence /absence footprint data is either 0 or 1: Oil & Gas Explorations, Military Exercise areas
--   The relative intensity of activities in each period are summed and rescaled between 0-100% to
-    visualize areas of increased and decreased intensity and potential threat
+-   The relative intensity of activities in each period are binned into deciles to
+    visualize areas of increased and decreased intensity of potential threats
 
 ```{r Calc threat dif, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE }
 source(here::here("scripts/calcThreatDif.r"), local = knitr::knit_global(), )
 
 # plot by threat
-plotThreats1 + plotThreats2 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
+threats2_combined
 
-
-
-  #plot  PRE/ POST Dif by threat
-
+#plot dif btwn post-pre
 diffThreats_plot
 
-source(here::here("scripts/statsThreats.R"), local = knitr::knit_global(), )
-# Display table in RMarkdown
-          kable(DifStats_threats, caption = "Difference in Relative Threat Intensity")%>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
-                full_width = FALSE, position = "center")
 ```
 
-### 4. Calculating difference in CHI between periods
-
--   The difference in Cumulative impact between periods highlights
-    measures the cell-by-cell difference between CHI and is used to understand areas and intensity of differences in
-    threats to NBW over time
--   Absolute difference is Contemporary period - Early Period
-
-##### RMS Error
-
--   Square Root(sum(e\^2)/n)
--   About 2/3 of all the cells will differ by less than the rmse.
-
-```{r Calc CHI difference, echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
-source(here::here("scripts/calcCHI.r"), local = knitr::knit_global(), )
-
-print(paste("RMSE = " , round(RMSError, 2), sep = ""))
-
-# Plot Absolute and RMSE Difference between periods
-
-CHI_dif
-
-```
-
-### 5. Summary Stats on CHI
-
--   Differences in cumulative relative threat intensity
-
-```{r Summary Stats, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
-source(here::here("scripts/statsCHI.r"), local = knitr::knit_global())
-
- # Display table in RMarkdown
-          kable(DifStats, caption = "Difference in Threat Intensity Over Time")%>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
-                full_width = FALSE, position = "center")
-
-          
-          # Display table in RMarkdown
-      kable(DifStats_pre, caption = "Early Period Threat Intensity Summary")%>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
-                full_width = FALSE, position = "center")
-
-      
-            # Display table in RMarkdown
-      kable(DifStats_post, caption = "Contemporary Period Threat Intensity Summary")%>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
-                full_width = FALSE, position = "center")
-
-      
-      # Display table in RMarkdown
-kable(dif_tble, caption = "Area of Important Habitat with Increased or Decreased Threat Intensity (Km<sup>2</sup>)") %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
-                full_width = FALSE, position = "center")
-
-
-```
