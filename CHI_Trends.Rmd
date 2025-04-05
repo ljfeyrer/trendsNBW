@@ -1,7 +1,7 @@
 ---
-title: "Cumulative Human Impact (CHI) scripts Methods"
-author: "Feyrer et al. 2024"
-date: "August 2024"
+title: "Threats Assessment Methods for NBW Trends"
+author: "Author"
+date: "2025"
 output: html_document
 editor_options: 
   markdown: 
@@ -49,29 +49,21 @@ options(scipen = 999)
 -   This includes Coastlines, bathymetry, NBW habitat area, and
     conservation zones
 -   Code imports data and transforms to UTM Zone 20 where necessary
--   Extent of study area is based on area of influence around NBW
-    habitat being a 50km buffer of the 1000m bathy line
+-   Extent of study area is based on NBW important habitat from Feyrer et al. 2024
 -   Bathymetric data from Atlas of Canada available at:
     (<https://ftp.maps.canada.ca/pub/nrcan_rncan/vector/framework_cadre/North_America_Atlas10M/bathymetry/>)
 -   Conservation zones compiled from layers available as shapefiles.
-    -   Other Effective Conservation Measures (OECM) from
-        <https://open.canada.ca/data/en/dataset/44769543-7a23-4991-a53f-c2cf7c7a946f>\
     -   Ocean's Act MPAs from
         <https://open.canada.ca/data/en/dataset/a1e18963-25dd-4219-a33f-1a38c4971250>\
-    -   Georges Bank Oil and Gas Exclusion zone from CNSOPB
-        <https://callforbids.cnsopb.ns.ca/2016/01/data-environment/gis-information>\
     -   Northern bottlenose whale Critical Habitat designations from
         Species at Risk
         <https://open.canada.ca/data/en/dataset/db177a8c-5d7d-49eb-8290-31e6a45d786c>
 
 ```{r import_basemap, echo = FALSE, message=FALSE, warning=FALSE, fig.fullwidth = TRUE}
-source(here::here("scripts/baseMap.r"), local = knitr::knit_global())
-source(here::here("scripts/functionsCHI.r"), local = knitr::knit_global())
+source(here::here("scripts/baseMap2.r"), local = knitr::knit_global())
 #remove any previous results before knitting and rerunning all scripts
 unlink(here::here("output/GRIDS/*"))
-#map base map
-
-include_graphics(gg_Fig2path)
+#map base map figure 1
 
 ```
 
@@ -88,12 +80,12 @@ include_graphics(gg_Fig2path)
 -   Whaling has not occurred in the region across the study period.
 -   Data is divided into two periods, historical (1988-2004) and
     contemporary (2005-2023). Information on the intensity of human
-    activities was standardized to values between 0-1.
+    activities was standardized to deciles (e.g., 10% bins).
 
 #### A. Fishing Effort (Entanglement, Depredation)
 
 -   Fishing effort was assessed using a combination of publicly
-    available intensity data (time spent in each cell) for the region
+    available intensity data (landings or time spent in each cell) for the region
     for three primary gear classes (i) Groundfish Fixed gear, e.g.,
     bottom longline, (ii) Pelagic longline, and (ii) Groundfish Mobile
     gear, e.g. trawl fisheries.

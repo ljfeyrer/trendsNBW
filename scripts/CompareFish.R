@@ -1,7 +1,7 @@
 #############################################################
 # Regional Fishing Effort Analysis: Pre-2005 vs. Post-2005
 # Analysis of spatial fishing patterns on the Scotian Shelf
-#Laura Feyrer 2025
+#2025
 #############################################################
 
 
