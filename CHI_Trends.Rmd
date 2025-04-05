@@ -198,10 +198,10 @@ m14 + m15 + plot_layout(guides = "collect")& theme(legend.position = 'bottom')
 source(here::here("scripts/calcThreatDif.r"), local = knitr::knit_global(), )
 
 # plot by threat
-threats2_combined
+threats_combined
 
 #plot dif btwn post-pre
-diffThreats_plot
+diff_threats_plot
 
 ```
 

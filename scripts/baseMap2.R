@@ -54,14 +54,14 @@ import_regions <- function(shapefile_path, boundaries) {
     st_transform(4326) %>% st_transform(UTM20)
   
   # Extract specific regions
-  scotian_shelf <- regions %>% dplyr::filter(DFO_REGION == "MAR")
+  SShelf <- regions %>% dplyr::filter(DFO_REGION == "MAR")
   gulf <- regions %>% dplyr::filter(DFO_REGION == "GULF")
   quebec <- regions %>% dplyr::filter(DFO_REGION == "QC")
   newfoundland <- regions %>% dplyr::filter(DFO_REGION == "NFLD")
   
   return(list(
     all = regions,
-    scotian_shelf = scotian_shelf,
+    SShelf = SShelf,
     gulf = gulf,
     quebec = quebec,
     newfoundland = newfoundland
@@ -133,11 +133,18 @@ import_nbw_data <- function(boundaries) {
   sightings <- read_sf(here::here(INPUT_DIR, "Ha/Ha_locations_2023.shp")) %>%
     st_transform(UTM20)
   
+  # Define map extent
+  x_min <- 662179.6
+  x_max <- 1014420
+  y_min <- 4695205.74
+  y_max <- 4993983.86
+  
   return(list(
     critical_habitat = nbw_ch,
     important_habitat = nbw_habitat,
     detections = bw_detects,
-    sightings = sightings
+    sightings = sightings,
+    xlim =  c(x_min, x_max), ylim = c(y_min, y_max)
   ))
 }
 
@@ -155,11 +162,7 @@ create_nbw_map <- function(land, bathy, conservation_areas, nbw_data, regions) {
       "Gully MPA (Marine Protected Area), outer boundary"
     ))
   
-  # Define map extent
-  x_min <- 712179.56
-  x_max <- 1009419.59
-  y_min <- 4695205.74
-  y_max <- 4993983.86
+  
   
   # Create map
   map <- ggplot() + theme_bw() +
@@ -187,13 +190,13 @@ create_nbw_map <- function(land, bathy, conservation_areas, nbw_data, regions) {
             col = "black", alpha = .5, linewidth = 1) +
     
     # Sightings and detections
-    geom_sf(data = nbw_data$sightings %>% st_intersection(regions$scotian_shelf), 
+    geom_sf(data = nbw_data$sightings %>% st_intersection(regions$SShelf), 
             colour = "#ff593d", fill = NA, size = 1.2, shape = 18) +
-    geom_sf(data = nbw_data$detections %>% st_intersection(regions$scotian_shelf), 
+    geom_sf(data = nbw_data$detections %>% st_intersection(regions$SShelf), 
             colour = "#93003a", fill = NA, size = 1, shape = 1) +
     
     # Set map extent
-    coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE) +
+    coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE) +
     
     # Labels and theming
     ylab("") + xlab("") +
@@ -249,7 +252,7 @@ create_nbw_map <- function(land, bathy, conservation_areas, nbw_data, regions) {
 
 # Create template raster for data processing ----
 create_template_raster <- function(regions) {
-  template <- rast(vect(regions$scotian_shelf), res = 1000)
+  template <- rast(vect(regions$SShelf), res = 1000)
   template_stars <- st_as_stars(template, as_points = FALSE, merge = FALSE)
   
   return(list(

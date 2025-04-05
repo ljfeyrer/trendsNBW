@@ -7,10 +7,10 @@
 
 # Required scripts basemap and functionsCHI + objects - 
     # template ( raster template)
-    # SShelf ( Scotian Shelf mask)
+    # regions$SShelf ( Scotian Shelf mask)
     # UTM20 ( coordinate reference system)
-    # nbw_ImHab_UTM, bathy, landUTM ( spatial layers for plotting)
-    # x_min, x_max, y_min, y_max ( map extent)
+    # nbw_data$important_habitat, bathy, land ( spatial layers for plotting)
+    # nbw_data$x_lims, nbw_data$y_lims( map extent)
 
 
 # Create output directories
@@ -76,20 +76,20 @@ plot_fishing_effort <- function(stars_data, title, direction = -1) {
       limits = c(0, 100)
     ) +
     geom_sf(
-      data = nbw_ImHab_UTM,
+      data = nbw_data$important_habitat,
       col = "black",
       fill = NA,
       size = 0.2
     ) +
     geom_sf(data = bathy, col = "gray", size = 0.2) +
-    geom_sf(data = landUTM, color = NA, fill = "grey50") +
+    geom_sf(data = land, color = NA, fill = "grey50") +
     annotation_scale(
       location = "br",
       width_hint = 0.25,
       text_cex = 0.6,
       bar_cols = c("grey40", "white")
     ) +
-    coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE) +
+    coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE) +
     ylab("") + xlab("") + 
     theme_bw() +
     theme(
@@ -113,13 +113,13 @@ plot_fishing_effort <- function(stars_data, title, direction = -1) {
 
 process_pelagic_longline <- function() {
   # PRE Period (1999-2003)
-  Pel_long_fish <- vect("shapes/Fishing_Effort/PRE/PLL/pelagics_all.shp")
+  Pel_long_fish <- vect("inputs/shapes/Fishing_Effort/PRE/PLL/pelagics_all.shp")
   Pel_long_fish <- project(Pel_long_fish[, 6:6], crs(UTM20))
   Pel_long_fish <- rasterize(Pel_long_fish, template, field = "lg_pelagic", fun = "max")
   
   # Project and mask
   Pel_long_fish <- terra::project(Pel_long_fish, template, method = 'near')
-  Pel_long_fish <- mask(Pel_long_fish, SShelf)
+  Pel_long_fish <- mask(Pel_long_fish, regions$SShelf)
   names(Pel_long_fish) <- "prePelagicFish"
   
   # Calculate deciles and save
@@ -127,9 +127,9 @@ process_pelagic_longline <- function() {
   PLL_deciles_pre <- rast(file.path(dirs$pre_fish, "prePelagicFish_deciles.tif"))
   
   # POST Period (2005-2021)
-  Pel_fish_POST <- rast(here::here("shapes/Fishing_Effort/POST/SS_Combined_Percentiles_Pelagic_2005-2021.tif"))
+  Pel_fish_POST <- rast(here::here("inputs/shapes/Fishing_Effort/POST/SS_Combined_Percentiles_Pelagic_2005-2021.tif"))
   Pel_fish_POST <- terra::project(Pel_fish_POST, template, method = 'near')
-  Pel_fish_POST <- mask(Pel_fish_POST, SShelf)
+  Pel_fish_POST <- mask(Pel_fish_POST, regions$SShelf)
   Pel_fish_POST <- invert_raster(Pel_fish_POST)
   names(Pel_fish_POST) <- "postPelFish"
   
@@ -162,13 +162,13 @@ process_pelagic_longline <- function() {
 
 process_bottom_longline <- function() {
   # PRE Period (1999-2003)
-  BLL_pre <- vect("shapes/Fishing_Effort/PRE/gf_trawl/groundfish_stats.shp")
+  BLL_pre <- vect("inputs/shapes/Fishing_Effort/PRE/GF_stats/groundfish_stats.shp")
   BLL_pre <- project(BLL_pre[, 20:20], crs(UTM20))
   BLL_pre_rast <- rasterize(BLL_pre, template, field = "LongLCatch", fun = "max")
   
   # Project and mask
   BLL_pre_rast <- terra::project(BLL_pre_rast, template, method = 'near')
-  BLL_pre_rast <- mask(BLL_pre_rast, SShelf)
+  BLL_pre_rast <- mask(BLL_pre_rast, regions$SShelf)
   names(BLL_pre_rast) <- "preBLL"
   
   # Calculate deciles and save
@@ -176,9 +176,9 @@ process_bottom_longline <- function() {
   BLL_pre_decile <- rast(file.path(dirs$pre_fish, "preBLL_deciles.tif"))
   
   # POST Period (2005-2021)
-  bot_long_fish_POST <- rast(here::here("shapes/Fishing_Effort/POST/SS_Combined_Percentiles_Groundfish_Fixed_2005-2021.tif"))
+  bot_long_fish_POST <- rast(here::here("inputs/shapes/Fishing_Effort/POST/SS_Combined_Percentiles_Groundfish_Fixed_2005-2021.tif"))
   bot_long_fish_POST <- terra::project(bot_long_fish_POST, template, method = 'near')
-  bot_long_fish_POST <- mask(bot_long_fish_POST, SShelf)
+  bot_long_fish_POST <- mask(bot_long_fish_POST, regions$SShelf)
   bot_long_fish_POST <- invert_raster(bot_long_fish_POST)
   
   names(bot_long_fish_POST) <- "postFixedFish"
@@ -212,13 +212,13 @@ process_bottom_longline <- function() {
 
 process_groundfish_mobile <- function() {
   # PRE Period (1999-2003)
-  mobile_gf_pre <- vect("shapes/Fishing_Effort/PRE/gf_trawl/groundfish_stats.shp")
+  mobile_gf_pre <- vect("inputs/shapes/Fishing_Effort/PRE/GF_stats/groundfish_stats.shp")
   mobile_gf_pre <- project(mobile_gf_pre[, 21:21], crs(UTM20))
   mobile_pre_rast <- rasterize(mobile_gf_pre, template, field = "TrawlCatch", fun = "max")
   
   # Project and mask
   mobile_gf_pre <- terra::project(mobile_pre_rast, template, method = 'near')
-  mobile_gf_pre <- mask(mobile_gf_pre, SShelf)
+  mobile_gf_pre <- mask(mobile_gf_pre, regions$SShelf)
   names(mobile_gf_pre) <- "preMobileGF"
   
   # Calculate deciles and save
@@ -226,9 +226,9 @@ process_groundfish_mobile <- function() {
   preMobileGF_decile <- rast(file.path(dirs$pre_fish, "preMobileGF_deciles.tif"))
   
   # POST Period (2005-2021)
-  GFmobile_POST <- rast(here::here("shapes/Fishing_Effort/POST/SS_Combined_Percentiles_Groundfish_Mobile_2005-2021.tif"))
+  GFmobile_POST <- rast(here::here("inputs/shapes/Fishing_Effort/POST/SS_Combined_Percentiles_Groundfish_Mobile_2005-2021.tif"))
   GFmobile_POST <- terra::project(GFmobile_POST, template, method = 'near')
-  GFmobile_POST <- mask(GFmobile_POST, SShelf)
+  GFmobile_POST <- mask(GFmobile_POST, regions$SShelf)
   GFmobile_POST <- invert_raster(GFmobile_POST)
   names(GFmobile_POST) <- "postGFmobileFish"
   
@@ -306,7 +306,6 @@ combine_fishing_efforts <- function() {
 # Main Execution-----
 #############################################################
 
-main <- function() {
   # Process all fishing effort types
   pelagic_results <- process_pelagic_longline()
   bottom_results <- process_bottom_longline()
@@ -314,6 +313,7 @@ main <- function() {
   
   # Combine all fishing effort layers
   combined_results <- combine_fishing_efforts()
+  
   
   # Arrange plots in a grid for publication
   combined_plots <- list(
@@ -327,8 +327,9 @@ main <- function() {
     patchwork::plot_layout(axes = "collect")+
     theme(legend.position = "right")+ 
     plot_annotation(title = "Differences in Historical and Contemporary Fishing Effort")# requires patchwork package
+  
   ggsave(
-    filename = file.path("output", "plots", "all_fishing_efforts.png"),
+    filename = file.path("output", "figs", "all_fishing_efforts.png"),
     plot = final_plot,
     width = 12, height = 18
   )
@@ -336,10 +337,3 @@ main <- function() {
   # Calculate difference between post and pre periods if needed
   fishing_difference <- combined_results$post_combined - combined_results$pre_combined
   names(fishing_difference) <- "fishing_difference"
-  
-  return(combined_results)
-}
-
-# Run the analysis
-results <- main()
-

@@ -18,8 +18,8 @@ post_threats <- rast(dir(path=CHI_path,pattern="post", full.names  = T))
 # Create common visualization parameters ----
 # Map extent parameters
 map_extent <- list(
-   xlim = c(x_min - 50000, x_max + 5000),
-   ylim = c(y_min, y_max)
+   xlim = nbw_data$xlim,
+   ylim = nbw_data$ylim
 )
 
 # Common theme elements
@@ -60,10 +60,10 @@ threat_labels <- list(
 add_map_features <- function(plot, land_fill = "grey50", nbw_color = "black", 
                              gully_color = "blue", ch_color = "blue") {
    plot +
-      geom_sf(data = nbw_ImHab_UTM, col = nbw_color, fill = NA, size = 0.2) +
-      geom_sf(data = Gully_UTM, col = gully_color, fill = NA, size = 1) +
-      geom_sf(data = NBW_CH_UTM, col = ch_color, fill = NA, size = 1) +
-      geom_sf(data = landUTM, color = NA, fill = land_fill) +
+      geom_sf(data = nbw_data$important_habitat, col = nbw_color, fill = NA, size = 0.2) +
+      geom_sf(data = conservation_areas$gully, col = gully_color, fill = NA, size = 1) +
+      geom_sf(data = nbw_data$critical_habitat, col = ch_color, fill = NA, size = 1) +
+      geom_sf(data = land, color = NA, fill = land_fill) +
       coord_sf(xlim = map_extent$xlim, ylim = map_extent$ylim, expand = FALSE) +
       ylab("") + xlab("")
 }
@@ -93,7 +93,7 @@ plotThreats_pre <- add_map_features(plotThreats_pre)
 
 plotThreats_pre
 # Save pre-threats plot
-ggsave(here::here("figs/plotThreats_pre.png"), plotThreats_pre, dpi = 300)
+ggsave(here::here("output/figs/plotThreats_pre.png"), plotThreats_pre, dpi = 300)
  
 # Post individual threats facet map ----
 # Convert to stars object
@@ -122,7 +122,7 @@ plotThreats_post <- ggplot() +
 plotThreats_post <- add_map_features(plotThreats_post)
 
 # Save post-threats plot
-ggsave(here::here("figs/plotThreats_post.png"), plotThreats_post, dpi = 300)
+ggsave(here::here("output/figs/plotThreats_post.png"), plotThreats_post, dpi = 300)
 
 # Combine pre and post threat plots
 threats_combined <- (plotThreats_pre + theme(plot.margin = unit(c(0, -30, 0, 0), "pt"))) + 
@@ -133,7 +133,7 @@ threats_combined <- (plotThreats_pre + theme(plot.margin = unit(c(0, -30, 0, 0),
 
 threats_combined
 # Save combined threats plot
-ggsave(here::here("figs/plotThreats_combined.png"), threats_combined, dpi = 300, width = 10, height = 12)
+ggsave(here::here("output/figs/plotThreats_combined.png"), threats_combined, dpi = 300, width = 10, height = 12)
 
  
 ######
@@ -168,7 +168,7 @@ calculate_difference <- function(post_raster, pre_raster) {
 post_fish <- post_threats[["post_fish"]]
 
 # Convert polygon to a spatial vector that terra can use
-gully_z1_vect <- vect(GullyZ1)
+gully_z1_vect <- vect(conservation_areas$gully_zone1)
 
 # Set values inside Zone 1 to 0 in the post-fishing raster
 # This simulates reduced fishing effort in Zone 1 after MPA designation
@@ -178,8 +178,8 @@ post_fish_masked <- mask(post_fish, gully_z1_vect, inverse=TRUE, updatevalue=0)
 # Replace the post-fishing layer with the masked version
 post_threats[["post_fish"]] <- post_fish_masked
 
-plot(pre_threats[["pre_fish"]] )
-plot(post_threats[["post_fish"]] )
+# plot(pre_threats[["pre_fish"]] )
+# plot(post_threats[["post_fish"]] )
 
 # Calculate difference
 diff_threats <- calculate_difference(post_threats, pre_threats)
@@ -248,15 +248,15 @@ diff_threats_plot <- ggplot() +
 
 # Apply map features with custom colors for difference plot
 diff_threats_plot <- diff_threats_plot +
-   geom_sf(data = nbw_ImHab_UTM, col = "#FFD300", fill = NA, linewidth = 0.5) +
-   geom_sf(data = Gully_UTM, col = "black", fill = NA, linewidth = 0.55) +
-   geom_sf(data = NBW_CH_UTM %>% filter(DESCRIP != "The Gully"), 
+   geom_sf(data = nbw_data$important_habitat, col = "#FFD300", fill = NA, linewidth = 0.5) +
+   geom_sf(data = conservation_areas$gully, col = "black", fill = NA, linewidth = 0.55) +
+   geom_sf(data = nbw_data$critical_habitat %>% filter(DESCRIP != "The Gully"), 
            col = "black", fill = NA, linewidth = 0.75) +
-   geom_sf(data = landUTM, color = "darkgray", fill = "#9D8566") +
+   geom_sf(data = land, color = "darkgray", fill = "#9D8566") +
    coord_sf(xlim = map_extent$xlim, ylim = map_extent$ylim, expand = FALSE) +
    ylab("") + xlab("")
 
 diff_threats_plot
 
 # Save difference plot
-ggsave(here::here("figs/Fig3_DifThreats.png"), diff_threats_plot, dpi = 300, width = 10, height = 8)
+ggsave(here::here("output/figs/Fig3_Difs.png"), diff_threats_plot, dpi = 300, width = 10, height = 8)

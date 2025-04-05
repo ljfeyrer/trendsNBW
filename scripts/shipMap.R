@@ -28,13 +28,13 @@
 
 ##  Import early shipping raster -------
       #LRIT layer
-      ship_pre = rast("shapes/Shipping/shipping2010.tif")
+      ship_pre = rast("inputs/shapes/Shipping/shipping2010.tif")
 
 # layers taken from SSHUA
 
-      # ship_pre = rast("shapes/Shipping/traffic2000")
+      # ship_pre = rast("inputs/shapes/Shipping/traffic2000")
       ship_pre <- terra::project(ship_pre, template, res = 1000, method = 'near')
-      ship_pre <- crop(ship_pre, SShelf)
+      ship_pre <- crop(ship_pre, regions$SShelf)
       names(ship_pre) <-"pre_Ship"
       # plot(ship_pre)
       
@@ -48,24 +48,24 @@
 ##  Import contemporary shipping raster -------
       
       # #HALPERN GLOBAL 2011
-      # halp_ship = rast("shapes/Shipping/shipping.tif")
+      # halp_ship = rast("inputs/shapes/Shipping/shipping.tif")
       # names(halp_ship) <-"postShip_halp"
       # 
       # #reproject, crop and save
       # writepath = here::here("output/GRIDS/POST/Shipping/")
-      # halpernRaster(halp_ship, dsn, SShelf, writepath)
+      # halpernRaster(halp_ship, dsn, regions$SShelf, writepath)
       # 
       # #make relative intensity scale
       # quantEffort(rast("output/GRIDS/POST/Shipping/postShip_halp.tif"), writepath = "output/GRIDS/POST/Shipping/")
       # ship_post = rast("output/GRIDS/POST/Shipping/postShip_halpQuant.tif")      
-      # halp_ship =    crop(ship_post, SShelf)
+      # halp_ship =    crop(ship_post, regions$SShelf)
       # # plot(halp_ship)
 
     #OPEN GOV 2019
       
-      ship_post19 = rast("shapes/Shipping/All_VesselsPerDay_2019_AIS.tif")
+      ship_post19 = rast("inputs/shapes/Shipping/All_VesselsPerDay_2019_AIS.tif")
       ship_post <- terra::project(ship_post19, template, res = 1000, method = 'near')
-      ship_post =    crop(ship_post, SShelf)
+      ship_post =    crop(ship_post, regions$SShelf)
       names(ship_post) <-"post_Ship"
       # plot(ship_post)
       
@@ -78,9 +78,9 @@
 
       # #OPEN GOV 2021
       # 
-      # ship_post21 = rast("shapes/Shipping/All_VesselsPerDay_2021_AIS.tif")
+      # ship_post21 = rast("inputs/shapes/Shipping/All_VesselsPerDay_2021_AIS.tif")
       # ship_post <- terra::project(ship_post21, template, res = 1000, method = 'near')
-      # ship_post =    crop(ship_post, SShelf)
+      # ship_post =    crop(ship_post, regions$SShelf)
       # names(ship_post) <-"post_Ship"
       # # plot(ship_post)
       # 
@@ -115,14 +115,14 @@ m14 = ggplot() +
   scale_fill_viridis_c(direction = -1, na.value=NA, option = "D", limits = c(0, 100)) +
 
   geom_sf(
-    data = nbw_ImHab_UTM,
+    data = nbw_data$important_habitat,
     col = "black",
     fill = NA,
     size = .2
   ) +
   geom_sf(data = bathy, col = "gray", size = 0.2) +
   # add land region
-  geom_sf(data = landUTM, color = NA, fill = "grey50") +
+  geom_sf(data = land, color = NA, fill = "grey50") +
   theme(legend.position = "none") +
   labs(title = "Shipping Traffic - Historical") +
   # add scale bar
@@ -133,7 +133,7 @@ m14 = ggplot() +
     bar_cols = c("grey40", "white")
   ) +
         # set map limits
-        coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE) +
+        coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE) +
         
         # format axes
         ylab("") +
@@ -159,14 +159,14 @@ m14 = ggplot() +
                    downsample = 3) +
         scale_fill_viridis_c(direction = -1, na.value=NA, option = "D", limits = c(0, 100)) +
         geom_sf(
-          data = nbw_ImHab_UTM,
+          data = nbw_data$important_habitat,
           col = "black",
           fill = NA,
           size = .2
         ) +
         geom_sf(data = bathy, col = "gray", size = 0.2) +
         # add land region
-        geom_sf(data = landUTM, color = NA, fill = "grey50") +
+        geom_sf(data = land, color = NA, fill = "grey50") +
         theme(legend.position = "none") +
         labs(title = "Shipping Traffic - Contemporary") +
         # add scale bar
@@ -177,7 +177,7 @@ m14 = ggplot() +
           bar_cols = c("grey40", "white")
         ) +
         # set map limits
-        coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE) +
+        coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE) +
         
         # format axes
         ylab("") +

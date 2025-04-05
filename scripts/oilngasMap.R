@@ -20,7 +20,7 @@
             # - Wells sorted by spud (drill) date, Operations, Considered footprint/PA data 
             
             #read in well data, make UTM
-            wells = read_sf(here::here("shapes/OnG/Operations/all_wells.shp"))
+            wells = read_sf(here::here("inputs/shapes/OnG/Operations/all_wells.shp"))
             wellsUTM = wells%>%st_transform(UTM20)
             
             #  sort by period
@@ -31,12 +31,12 @@
             ggplot() +
               
               geom_sf(data= bathy, col = "gray", size = 0.2) +
-              geom_sf(data= landUTM, color = NA, fill = "grey50") +
+              geom_sf(data= land, color = NA, fill = "grey50") +
               geom_sf(data = wells, aes(col = YearEnd))+
               theme_bw()+
               labs(title ="All Wells") +
               geom_sf(
-                data = nbw_ImHab_UTM,
+                data = nbw_data$important_habitat,
                 col = "black",
                 fill = NA,
                 size = .2
@@ -49,7 +49,7 @@
                 bar_cols = c("grey40", "white")
               ) +
               # set map limits
-              coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE) +
+              coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE) +
               theme_bw() +
               # format axes
               ylab("") +
@@ -77,7 +77,7 @@
       # - Platforms Operations, Considered footprint/PA data 
       
       #read in data, make UTM
-      platforms = read_sf(here::here("shapes/OnG/Operations/platformsYR.shp"))
+      platforms = read_sf(here::here("inputs/shapes/OnG/Operations/platformsYR.shp"))
       platformsUTM = platforms%>%st_transform(UTM20)
       
       #  sort by period
@@ -86,11 +86,11 @@
       
       #plot all by year
       ggplot()+ geom_sf(data = bathy, col = "grey",  size = 0.2)+
-        geom_sf(data = nbw_ImHab_UTM, col = "black",size = .2, fill = NA)+
+        geom_sf(data = nbw_data$important_habitat, col = "black",size = .2, fill = NA)+
         geom_sf(data = platforms, aes(col = YEAR))+theme_bw()+
         labs(title ="All Platforms")+
         # set map limits
-        coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE)
+        coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE)
 
 #Rasterize Pre- 
 prePlatforms = pointRaster(prePlatforms, template, dsn)
@@ -102,16 +102,16 @@ postPlatforms = pointRaster(postPlatforms, template, dsn2)
       # - Production licenses are similar impact to platforms, but polygons, Operations, Considered footprint/PA data 
       
       #read in data, make UTM
-      ProdLic = read_sf(here::here("shapes/OnG/Operations/Production_LicenceYR.shp"))
+      ProdLic = read_sf(here::here("inputs/shapes/OnG/Operations/Production_LicenceYR.shp"))
       ProdLicUTM = ProdLic%>%st_transform(UTM20)
       
       #plot all by year
       ggplot()+ geom_sf(data = bathy, col = "grey",  size = 0.2)+
-        geom_sf(data = nbw_ImHab_UTM, col = "black",size = .2, fill = NA)+
+        geom_sf(data = nbw_data$important_habitat, col = "black",size = .2, fill = NA)+
         geom_sf(data = ProdLic, aes(col = YEAR))+theme_bw()+
         labs(title ="All Production Licenses")+
         # set map limits
-        coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE)
+        coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE)
       
       #  sort by period (operational date)
       preProdLic = ProdLicUTM%>%filter(YEAR <=2004)
@@ -127,17 +127,17 @@ postProdLic = polyRaster(postProdLic, template, dsn2)
           # - Significant discovery licenses require drilling and surveys, operations, Considered footprint/PA data
           #read in data, make UTM
           
-          SigDisLic =read_sf(here::here("shapes/OnG/Operations/SigDis_LicenceYR.shp"))
+          SigDisLic =read_sf(here::here("inputs/shapes/OnG/Operations/SigDis_LicenceYR.shp"))
           SigDisLicUTM = SigDisLic%>%st_transform(UTM20)
           
           #plot all by year
           ggplot()+ geom_sf(data = bathy, col = "grey",  size = 0.2)+
             geom_sf(data = SigDisLic, aes(col = YEAR))+theme_bw()+
             labs(title ="Significant Discovery Licenses")+
-            geom_sf(data = nbw_ImHab_UTM, col = "black",size = .2, fill = NA)+
+            geom_sf(data = nbw_data$important_habitat, col = "black",size = .2, fill = NA)+
             
             # set map limits
-            coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE)
+            coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE)
           
           
           #  sort by period
@@ -154,7 +154,7 @@ polyRaster(postSigLic, template, dsn2)
       # - All built by 1999 so occur as impact in both pre & post periods, Operations, Considered footprint/PA data 
       
       #read in data, make UTM
-      pipes =read_sf(here::here("shapes/OnG/Operations/all_pipes.shp"))
+      pipes =read_sf(here::here("inputs/shapes/OnG/Operations/all_pipes.shp"))
       pipesUTM = pipes%>%st_transform(UTM20)
       
       #change name so consistent
@@ -165,9 +165,9 @@ polyRaster(postSigLic, template, dsn2)
       ggplot()+ geom_sf(data = bathy, col = "grey",  size = 0.2)+
          geom_sf(data = pipes, col = "blue")+theme_bw()+
         labs(title ="Pipelines")+
-        geom_sf(data = nbw_ImHab_UTM, col = "black",size = .2, fill = NA)+
+        geom_sf(data = nbw_data$important_habitat, col = "black",size = .2, fill = NA)+
         # set map limits
-        coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE)
+        coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE)
 
 ##Rasterize Pre- 2004 use function pointRaster
 pointRaster(prePipes, template, dsn)
@@ -213,17 +213,17 @@ m10 = ggplot() +
     direction = 1,
     na.value = "transparent"
   ) +
-  geom_sf(data = nbw_ImHab_UTM, col = "black",fill = NA, size = .2)+
+  geom_sf(data = nbw_data$important_habitat, col = "black",fill = NA, size = .2)+
   geom_stars(data = Op_pre_df, na.rm = T, downsample = 0)+
   geom_sf(data = bathy, col = "gray", size = 0.2) +
   # add land region
-  geom_sf(  data = landUTM, color=NA, fill="grey50") +
+  geom_sf(  data = land, color=NA, fill="grey50") +
   # add scale bar
   annotation_scale(location = "br", width_hint=0.25,
                    text_cex = 0.6,
                    bar_cols = c("grey40", "white")) +
   # set map limits
-  coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE)+
+  coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE)+
   # format axes
   ylab("") +
   xlab("") +
@@ -249,17 +249,17 @@ m11 = ggplot() +
     direction = 1,
     na.value = "transparent"
   ) +
-  geom_sf(data = nbw_ImHab_UTM, col = "black",fill = NA, size = .2)+
+  geom_sf(data = nbw_data$important_habitat, col = "black",fill = NA, size = .2)+
   geom_stars(data = Op_post_df, na.rm = T, downsample = 0)+
   geom_sf(data = bathy, col = "gray", size = 0.2) +
   # add land region
-  geom_sf(  data = landUTM, color=NA, fill="grey50") +
+  geom_sf(  data = land, color=NA, fill="grey50") +
   # add scale bar
   annotation_scale(location = "br", width_hint=0.25,
                    text_cex = 0.6,
                    bar_cols = c("grey40", "white")) +
   # set map limits
-  coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE)+
+  coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE)+
   # format axes
   ylab("") +
   xlab("") +

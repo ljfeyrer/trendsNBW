@@ -30,15 +30,14 @@
 # not occur inside the MPA.
 
 #read in polygon data-----
-DND_areas = read_sf(here::here("shapes/MilitaryEx/DND.shp"))
+DND_areas = read_sf(here::here("inputs/shapes/MilitaryEx/DND.shp"))
 DND_areasUTM = DND_areas%>%st_transform(UTM20)
 DND_areasUTM = vect(DND_areasUTM)
-# plot(st_geometry(DND_areas))
 
 #rasterize by count and set overlapping polygons to value = 1----
 dsn = here::here("output/GRIDS/PRE/")
 DND2Raster =  rasterize(DND_areasUTM, template)
-DND2Raster = mask(DND2Raster, SShelf)
+DND2Raster = mask(DND2Raster, regions$SShelf)
 # DND2Raster[DND2Raster == 0] <- NA
 DND2Raster[DND2Raster >0] <- 100
 # DND2Raster[is.na(DND2Raster)] <- 0
@@ -65,14 +64,14 @@ m8 = ggplot() +
              na.rm = T,
              downsample = 3) +
   geom_sf(
-    data = nbw_ImHab_UTM,
+    data = nbw_data$important_habitat,
     col = "black",
     fill = NA,
     size = .2
   )+
 
   geom_sf(data= bathy, col = "gray", size = 0.2) +
-  geom_sf(data= landUTM, color = NA, fill = "grey50") +
+  geom_sf(data= land, color = NA, fill = "grey50") +
   # add scale bar
   annotation_scale(
     location = "br",
@@ -81,7 +80,7 @@ m8 = ggplot() +
     bar_cols = c("grey40", "white")
   ) +
   # set map limits
-  coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE) +
+  coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE) +
   theme_bw() +
   # format axes
   ylab("") +
@@ -101,7 +100,7 @@ m8
 # Contemporary Period (2005-2019)-------
 
 #Mask Gully out of contemporary period-----
-postDND <- mask(DND2Raster,Gully_UTM, inverse = T, updatevalue =99 )
+postDND <- mask(DND2Raster,conservation_areas$gully, inverse = T, updatevalue =99 )
 # plot(postDND)
 postDND[postDND == 0] <- NA
 postDND[postDND == 99] <- 0
@@ -128,14 +127,14 @@ m9 = ggplot() +
              downsample = 3) +
  
   geom_sf(
-    data = nbw_ImHab_UTM,
+    data = nbw_data$important_habitat,
     col = "black",
     fill = NA,
     size = .2
   )+
   
   geom_sf(data= bathy, col = "gray", size = 0.2) +
-  geom_sf(data= landUTM, color = NA, fill = "grey50") +
+  geom_sf(data= land, color = NA, fill = "grey50") +
   # add scale bar
   annotation_scale(
     location = "br",
@@ -144,7 +143,7 @@ m9 = ggplot() +
     bar_cols = c("grey40", "white")
   ) +
   # set map limits
-  coord_sf(xlim = c(x_min, x_max), ylim = c(y_min, y_max), expand = FALSE) +
+  coord_sf(xlim = nbw_data$xlim, ylim = nbw_data$ylim, expand = FALSE) +
   theme_bw() +
   # format axes
   ylab("") +
